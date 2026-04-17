@@ -70,6 +70,13 @@ body {
     position: relative;
 }
 
+.filter-adult-control {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    opacity: 0.8;
+}
+
 .title {
     font-family: 'Cinzel', serif;
     font-size: 3rem;
@@ -213,7 +220,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+}
+
+.footer-copyright {
+    text-align: center;
+    padding-bottom: 2rem;
+    color: rgba(148, 163, 184, 0.4);
+    font-size: 0.8rem;
+    letter-spacing: 1px;
 }
 
 .input-panel {
@@ -501,6 +516,12 @@ body {
         position: relative;
         right: auto;
         align-items: center;
+    }
+    
+    .filter-adult-control {
+        position: relative;
+        left: auto;
+        margin-bottom: 1rem;
     }
     
     .controls-row {

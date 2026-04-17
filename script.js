@@ -45,7 +45,13 @@ const dummySecrets = [
     { text: "Todavía guardo la carta que me diste. A veces la leo en silencio para recordar qué se siente ser amado.", category: "To you", adult: false },
     { text: "Sonrío todo el día con mis amigos, pero en la noche, el silencio y la soledad me consumen por completo.", category: "To everyone", adult: false },
     { text: "Ayer te vi en la estación. Te veías tan feliz con ella que me dolió respirar, así que me di la vuelta antes de que me vieras.", category: "To someone", adult: false },
-    { text: "Nadie sabe que lloro en mi auto antes de entrar a mi propia casa. Aparento que mi vida es perfecta, pero estoy roto por dentro.", category: "To everyone", adult: false }
+    { text: "Nadie sabe que lloro en mi auto antes de entrar a mi propia casa. Aparento que mi vida es perfecta, pero estoy roto por dentro.", category: "To everyone", adult: false },
+    
+    // Adult Only (19+) Themes
+    { text: "We spent the whole night tangled in those cheap motel sheets, promising to leave our spouses. We both knew in the morning it was a lie.", category: "To someone", adult: true },
+    { text: "술 취해서 네 방 문을 두드렸던 그날 밤, 넘지 말아야 할 선을 넘은 걸 후회하진 않아. 다만 아침에 짓던 네 차가운 표정만은 지우고 싶어.", category: "To you", adult: true },
+    { text: "あなたの奥さんが隣で寝ているのに、ベッドの下で息を殺して朝を待っていた。優しくされるほど、自分が汚れていく気がするの。", category: "To everyone", adult: true },
+    { text: "Te besé desesperadamente en la oscuridad, sabiendo que al encenderse las luces volverías a ser solo un extraño con anillo de casado.", category: "To someone", adult: true }
 ];
 
 let basePostsRegistered = 24700; // Base thematic counter
@@ -63,10 +69,12 @@ const secretInput = document.getElementById('secret-input');
 const categorySelect = document.getElementById('category-select');
 const adultOnlyCheckbox = document.getElementById('adult-only');
 const submitBtn = document.getElementById('submit-btn');
+const filterAdultView = document.getElementById('filter-adult-view');
 
 function init() {
     updateCounter();
-    setupFirebaseListener();
+    renderSecrets(); // Render immediately using local secrets
+    setupFirebaseListener(); // Sync with real-time DB
 }
 
 function setupFirebaseListener() {
@@ -116,15 +124,29 @@ function shuffle(array) {
 function renderSecrets() {
     secretsContainer.innerHTML = '';
     
-    // Pick 3 random secrets that are completely new
-    let available = allSecrets.filter(s => {
-        // deeply compare or just check by text isn't perfect, but we can compare object refs 
-        // stringified comparison for simplicity since object refs change from firebase
+    // Filter target secrets based on the Adult Only toggle
+    let targetSecrets = filterAdultView.checked ? 
+                        allSecrets.filter(s => s.adult === true) : 
+                        allSecrets;
+
+    if (targetSecrets.length === 0) {
+        currentDisplayed = [];
+        secretsContainer.innerHTML = `
+            <div class="secret-card glass" style="justify-content: center; align-items: center; text-align: center; max-height: 200px; margin: auto;">
+                <i class="fas fa-ghost" style="font-size: 2.5rem; color: var(--text-dim); margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p style="color: var(--text-dim); font-style: italic;">No adult secrets discovered yet...</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Pick 3 random secrets that are completely new from target pool
+    let available = targetSecrets.filter(s => {
         return !currentDisplayed.some(cd => cd.text === s.text);
     });
     
     if (available.length < 3) {
-        available = [...allSecrets];
+        available = [...targetSecrets];
     }
     
     const shuffled = shuffle(available);
@@ -239,6 +261,15 @@ submitBtn.addEventListener('click', async () => {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Leave Secret';
     }
+});
+
+// Toggle adult view filter
+filterAdultView.addEventListener('change', () => {
+    secretsContainer.style.opacity = '0';
+    setTimeout(() => {
+        renderSecrets();
+        secretsContainer.style.opacity = '1';
+    }, 400);
 });
 
 init();
