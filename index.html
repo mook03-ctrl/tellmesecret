@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tell me your secret</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="bg-stars"></div>
+    <div class="bg-mist"></div>
+
+    <header class="header">
+        <h1 class="title">Tell me your secret</h1>
+        <div class="counter-wrapper">
+            <span class="counter-label">Total Whispers</span>
+            <span id="secret-counter" class="counter-value">0</span>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="secrets-carousel">
+            <div id="secrets-container" class="secrets-container">
+                <!-- Secret cards injected by JavaScript -->
+            </div>
+            <button id="more-btn" class="more-secrets-btn" title="See more secrets">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </section>
+    </main>
+
+    <footer class="footer-input">
+        <div class="input-panel glass">
+            <textarea id="secret-input" placeholder="Quietly write your secret here..." rows="5"></textarea>
+            <div class="controls-row">
+                <div class="options-group">
+                    <div class="custom-select-wrapper">
+                        <select id="category-select" class="dropdown">
+                            <option value="To someone">To someone</option>
+                            <option value="To you">To you</option>
+                            <option value="To everyone">To everyone</option>
+                        </select>
+                        <i class="fas fa-caret-down select-icon"></i>
+                    </div>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="adult-only">
+                        <span class="checkmark"></span>
+                        Adult only
+                    </label>
+                </div>
+                <button id="submit-btn" class="submit-btn">Leave Secret</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Ad Pop-up Modal -->
+    <div id="ad-modal" class="modal hidden">
+        <div class="modal-box glass">
+            <button id="close-modal" class="close-btn"><i class="fas fa-times"></i></button>
+            <div class="ad-content">
+                <i class="fas fa-ad ad-icon"></i>
+                <h2>Advertisement</h2>
+                <p>Please wait for a moment before seeing more secrets.</p>
+                <span class="ad-hint">(Click 'X' to close and view more secrets)</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
