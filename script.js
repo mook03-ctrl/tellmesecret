@@ -1,4 +1,27 @@
-// Pre-populated secrets to establish the mood
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
+import { 
+    getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, limit
+} from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBUqe-XAbE1XkUh0i511LJ82emllR1AAFQ",
+  authDomain: "tellmescret.firebaseapp.com",
+  projectId: "tellmescret",
+  storageBucket: "tellmescret.firebasestorage.app",
+  messagingSenderId: "373304860236",
+  appId: "1:373304860236:web:f70646ad6e4c0f68361ee9",
+  measurementId: "G-V1V7P6L0RT"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+const secretsCollection = collection(db, "secrets");
+
+// Pre-populated secrets to establish the mood (Base Data)
 const dummySecrets = [
     // English
     { text: "The night you left, I sat on the floor until the sun came up. You told me you'd be back. Fifty-two months ago.", category: "To you", adult: false },
@@ -25,8 +48,8 @@ const dummySecrets = [
     { text: "Nadie sabe que lloro en mi auto antes de entrar a mi propia casa. Aparento que mi vida es perfecta, pero estoy roto por dentro.", category: "To everyone", adult: false }
 ];
 
-let basePostsRegistered = 247;
-let totalDisplayedCounter = basePostsRegistered * 100;
+let basePostsRegistered = 24700; // Base thematic counter
+let totalDisplayedCounter = basePostsRegistered;
 let allSecrets = [...dummySecrets];
 let currentDisplayed = [];
 
@@ -43,7 +66,37 @@ const submitBtn = document.getElementById('submit-btn');
 
 function init() {
     updateCounter();
-    renderSecrets();
+    setupFirebaseListener();
+}
+
+function setupFirebaseListener() {
+    // Query recently added secrets
+    const q = query(secretsCollection, orderBy("createdAt", "desc"), limit(150));
+    
+    // Real-time listener
+    onSnapshot(q, (snapshot) => {
+        const fetchedSecrets = [];
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            fetchedSecrets.push({
+                text: data.text,
+                category: data.category,
+                adult: data.adult || false
+            });
+        });
+
+        // Combine DB secrets and dummy secrets to guarantee a good pool
+        allSecrets = [...fetchedSecrets, ...dummySecrets];
+        
+        // Exact real-time counter! Base + number of actual secrets in DB
+        totalDisplayedCounter = basePostsRegistered + snapshot.size;
+        updateCounter();
+
+        // Initial render if empty
+        if (currentDisplayed.length === 0) {
+            renderSecrets();
+        }
+    });
 }
 
 function updateCounter() {
@@ -61,11 +114,15 @@ function shuffle(array) {
 }
 
 function renderSecrets() {
-    // Clear current secrets
     secretsContainer.innerHTML = '';
     
-    // Pick 3 random secrets that are completely new (not in currentDisplayed)
-    let available = allSecrets.filter(s => !currentDisplayed.includes(s));
+    // Pick 3 random secrets that are completely new
+    let available = allSecrets.filter(s => {
+        // deeply compare or just check by text isn't perfect, but we can compare object refs 
+        // stringified comparison for simplicity since object refs change from firebase
+        return !currentDisplayed.some(cd => cd.text === s.text);
+    });
+    
     if (available.length < 3) {
         available = [...allSecrets];
     }
@@ -82,17 +139,14 @@ function renderSecrets() {
             label += " (Adult only)";
         }
         
-        // Calculate visual length since non-English characters take more horizontal space
         let visualLength = 0;
         for (let i = 0; i < secret.text.length; i++) {
             visualLength += secret.text.charCodeAt(i) > 255 ? 2.2 : 1;
         }
 
-        // Approximate if it needs a "more..." button based on length or newlines
         const linesCount = secret.text.split('\n').length;
         const needsMore = linesCount > 2 || visualLength > 70;
         
-        // Sanitize
         const safeText = secret.text.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>');
 
         cardNode.innerHTML = `
@@ -104,7 +158,6 @@ function renderSecrets() {
         secretsContainer.appendChild(cardNode);
     });
 
-    // Attach event listeners for expand buttons
     const expandBtns = document.querySelectorAll('.btn-more');
     expandBtns.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -120,17 +173,13 @@ function renderSecrets() {
     });
 }
 
-// Modal Logic
+// Modal
 moreBtn.addEventListener('click', () => {
-    // Show Ad Popup
     adModal.classList.remove('hidden');
 });
 
 closeModal.addEventListener('click', () => {
-    // Close Modal and simulate loading next batch
     adModal.classList.add('hidden');
-    
-    // Add brief fade away effect before re-rendering
     secretsContainer.style.opacity = '0';
     setTimeout(() => {
         renderSecrets();
@@ -139,17 +188,16 @@ closeModal.addEventListener('click', () => {
     }, 400);
 });
 
-// Input handling (Max 5 lines)
+// Max 5 lines
 secretInput.addEventListener('input', function() {
     const lines = this.value.split('\n');
     if (lines.length > 5) {
-        // Enforce maximum exactly 5 lines
         this.value = lines.slice(0, 5).join('\n');
     }
 });
 
-// Submit logic
-submitBtn.addEventListener('click', () => {
+// Submit to Database
+submitBtn.addEventListener('click', async () => {
     const text = secretInput.value.trim();
     if (!text) return;
     
@@ -159,32 +207,38 @@ submitBtn.addEventListener('click', () => {
         return;
     }
 
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Whispering...';
+
     const newSecret = {
         text: text,
         category: categorySelect.value,
-        adult: adultOnlyCheckbox.checked
+        adult: adultOnlyCheckbox.checked,
+        createdAt: serverTimestamp()
     };
     
-    // Add to pool
-    allSecrets.unshift(newSecret);
-    totalDisplayedCounter++;
-    
-    // Reset view
-    updateCounter();
-    
-    // Reset input form
-    secretInput.value = '';
-    adultOnlyCheckbox.checked = false;
-    categorySelect.value = 'To someone';
-    
-    // Optionally we can show the new secret right away or just let them stumble upon it
-    // We'll show a fresh randomized batch (which has a slightly higher chance to show the new one)
-    secretsContainer.style.opacity = '0';
-    setTimeout(() => {
-        renderSecrets();
-        secretsContainer.style.opacity = '1';
-    }, 400);
+    try {
+        await addDoc(secretsCollection, newSecret);
+        
+        // Reset input form
+        secretInput.value = '';
+        adultOnlyCheckbox.checked = false;
+        categorySelect.value = 'To someone';
+        
+        // Show new secrets view visually
+        secretsContainer.style.opacity = '0';
+        setTimeout(() => {
+            // Because onSnapshot is real-time, the data is already updated in allSecrets!
+            renderSecrets();
+            secretsContainer.style.opacity = '1';
+        }, 400);
+    } catch (error) {
+        console.error("Error adding document: ", error);
+        alert("Sorry, your secret couldn't be whispered... Try later.");
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Leave Secret';
+    }
 });
 
-// Initialize on load
 init();
