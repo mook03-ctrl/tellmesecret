@@ -558,7 +558,22 @@ body {
     .controls-row {
         flex-direction: column;
         gap: 1.5rem;
-        align-items: flex-start;
+        align-items: stretch;
+    }
+    
+    .options-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .custom-select-wrapper, .dropdown {
+        width: 100%;
+    }
+    
+    .dropdown {
+        padding-right: 2.5rem; /* Ensure space for the caret icon */
     }
     
     .submit-btn {
