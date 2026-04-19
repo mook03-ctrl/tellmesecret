@@ -93,13 +93,21 @@ body {
     gap: 0.5rem;
 }
 
+.privacy-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0; /* Add margin to vertically space it between header and cards */
+    width: 100%;
+}
+
 .privacy-notice {
     font-size: 0.85rem;
-    color: var(--text-dim);
+    color: #64748b; /* Toned down gray */
     text-align: center;
-    line-height: 1.5;
+    line-height: 1.6;
     letter-spacing: 0.5px;
-    opacity: 0.8;
+    opacity: 0.6;
 }
 
 .counter-wrapper {
