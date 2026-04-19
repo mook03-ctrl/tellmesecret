@@ -66,6 +66,7 @@ const moreBtn = document.getElementById('more-btn');
 const adModal = document.getElementById('ad-modal');
 const closeModal = document.getElementById('close-modal');
 const secretInput = document.getElementById('secret-input');
+const recipientSelect = document.getElementById('recipient-select');
 const categorySelect = document.getElementById('category-select');
 const adultOnlyCheckbox = document.getElementById('adult-only');
 const submitBtn = document.getElementById('submit-btn');
@@ -89,6 +90,7 @@ function setupFirebaseListener() {
             fetchedSecrets.push({
                 text: data.text,
                 category: data.category,
+                recipient: data.recipient,
                 adult: data.adult || false
             });
         });
@@ -156,7 +158,7 @@ function renderSecrets() {
         const cardNode = document.createElement('div');
         cardNode.className = 'secret-card glass';
         
-        let label = secret.category;
+        let label = secret.recipient ? `${secret.recipient} • ${secret.category}` : secret.category;
         if (secret.adult) {
             label += " (Adult only)";
         }
@@ -234,6 +236,7 @@ submitBtn.addEventListener('click', async () => {
 
     const newSecret = {
         text: text,
+        recipient: recipientSelect.value,
         category: categorySelect.value,
         adult: adultOnlyCheckbox.checked,
         createdAt: serverTimestamp()
@@ -245,7 +248,8 @@ submitBtn.addEventListener('click', async () => {
         // Reset input form
         secretInput.value = '';
         adultOnlyCheckbox.checked = false;
-        categorySelect.value = 'To someone';
+        recipientSelect.value = 'To someone';
+        categorySelect.value = 'Personal';
         
         // Show new secrets view visually
         secretsContainer.style.opacity = '0';
