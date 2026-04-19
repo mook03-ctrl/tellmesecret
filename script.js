@@ -225,6 +225,36 @@ submitBtn.addEventListener('click', async () => {
     const text = secretInput.value.trim();
     if (!text) return;
     
+    const adultKeywords = ['섹스', '야동', '자위', '조건만남', '음란', '성관계', '오르가즘', '페티쉬', '모텔', 'sex', 'porn', 'nude', 'fuck'];
+    const isAdultContent = adultKeywords.some(keyword => text.toLowerCase().includes(keyword));
+    
+    if (isAdultContent && !adultOnlyCheckbox.checked) {
+        alert("성적인 표현이나 관련 단어가 포함된 글은 'Adult only'를 체크해야 등록할 수 있습니다.\n(Posts containing adult keywords must have 'Adult only' checked.)");
+        return;
+    }
+
+    // Spam Filter
+    const spamKeywords = ['바카라', '카지노', '토토', '사다리', '대출', '도박', '스포츠토토', 'http://', 'https://', 'www.'];
+    const isSpamContent = spamKeywords.some(keyword => text.toLowerCase().includes(keyword));
+    
+    if (isSpamContent) {
+        alert("스팸, 광고성 내용 또는 링크가 포함된 글은 등록할 수 없습니다.\n(Spam, ads, or links are not allowed.)");
+        return;
+    }
+
+    // Duplicate Check
+    const lastPosted = localStorage.getItem('lastPostedSecret');
+    if (lastPosted && lastPosted.toLowerCase() === text.toLowerCase()) {
+        alert("방금 작성하신 글과 동일한 내용을 반복해서 올릴 수 없습니다.\n(You cannot post the exact same secret repeatedly.)");
+        return;
+    }
+    
+    const isGlobalDuplicate = allSecrets.some(secret => secret.text.toLowerCase() === text.toLowerCase());
+    if (isGlobalDuplicate) {
+        alert("이미 누군가가 작성했거나 방금 등록된 동일한 내용의 비밀입니다.\n(This secret has already been shared recently.)");
+        return;
+    }
+
     const lines = text.split('\n');
     if (lines.length > 5) {
         alert("Please limit your secret to 5 lines maximum.");
@@ -244,6 +274,9 @@ submitBtn.addEventListener('click', async () => {
     
     try {
         await addDoc(secretsCollection, newSecret);
+        
+        // Save to local storage to prevent immediate duplicate
+        localStorage.setItem('lastPostedSecret', text);
         
         // Reset input form
         secretInput.value = '';
