@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Fixing adult flags...</h1>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUqe-XAbE1XkUh0i511LJ82emllR1AAFQ",
+            authDomain: "tellmescret.firebaseapp.com",
+            projectId: "tellmescret",
+            storageBucket: "tellmescret.firebasestorage.app",
+            messagingSenderId: "373304860236",
+            appId: "1:373304860236:web:f70646ad6e4c0f68361ee9"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        async function run() {
+            const adultKeywords = [
+                '섹스', '야동', '자위', '조건만남', '음란', '성관계', '오르가즘', '페티쉬', '모텔', 
+                '신음', '정액', '삽입', '보지', '고추', '자지', '성기', '클리토리스', '지스팟', '처녀막',
+                'sex', 'porn', 'nude', 'fuck'
+            ];
+            
+            const secretsCollection = collection(db, "secrets");
+            try {
+                const snapshot = await getDocs(secretsCollection);
+                let updated = 0;
+                for (let docSnap of snapshot.docs) {
+                    let data = docSnap.data();
+                    if (data.adult !== true) {
+                        let text = data.text || '';
+                        let isAdultContent = adultKeywords.some(keyword => text.toLowerCase().includes(keyword));
+                        if (isAdultContent) {
+                            try {
+                                await updateDoc(docSnap.ref, { adult: true });
+                                updated++;
+                            } catch(e) {
+                                console.error("Failed to update", docSnap.id, e);
+                                document.body.innerHTML += `<p style="color:red">Failed update: ${e.message}</p>`;
+                            }
+                        }
+                    }
+                }
+                document.body.innerHTML += `<p>Done! Updated ${updated} posts.</p>`;
+            } catch(e) {
+                document.body.innerHTML += `<p style="color:red">Failed fetch: ${e.message}</p>`;
+            }
+        }
+        
+        run();
+    </script>
+</body>
+</html>

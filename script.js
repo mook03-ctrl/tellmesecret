@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
 import { 
-    getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, limit
+    getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, limit, getDocs, deleteDoc, doc
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
@@ -54,7 +54,7 @@ const dummySecrets = [
     { text: "Te besé desesperadamente en la oscuridad, sabiendo que al encenderse las luces volverías a ser solo un extraño con anillo de casado.", category: "To someone", adult: true }
 ];
 
-let basePostsRegistered = 24700; // Base thematic counter
+let basePostsRegistered = 2400; // Base thematic counter
 let totalDisplayedCounter = basePostsRegistered;
 let allSecrets = [...dummySecrets];
 let currentDisplayed = [];
@@ -71,6 +71,18 @@ const categorySelect = document.getElementById('category-select');
 const adultOnlyCheckbox = document.getElementById('adult-only');
 const submitBtn = document.getElementById('submit-btn');
 const filterAdultView = document.getElementById('filter-adult-view');
+
+// Admin DOM
+const adminDashboard = document.getElementById('admin-dashboard');
+const exitAdminBtn = document.getElementById('exit-admin-btn');
+const adminLoading = document.getElementById('admin-loading');
+const adminContent = document.getElementById('admin-content');
+const adminTotalPosts = document.getElementById('admin-total-posts');
+const statPersonal = document.getElementById('stat-personal');
+const statSociety = document.getElementById('stat-society');
+const statCompany = document.getElementById('stat-company');
+const adminDailyChart = document.getElementById('admin-daily-chart');
+const moderationList = document.getElementById('moderation-list');
 
 function init() {
     updateCounter();
@@ -129,7 +141,7 @@ function renderSecrets() {
     // Filter target secrets based on the Adult Only toggle
     let targetSecrets = filterAdultView.checked ? 
                         allSecrets.filter(s => s.adult === true) : 
-                        allSecrets;
+                        allSecrets.filter(s => s.adult !== true);
 
     if (targetSecrets.length === 0) {
         currentDisplayed = [];
@@ -223,13 +235,34 @@ secretInput.addEventListener('input', function() {
 // Submit to Database
 submitBtn.addEventListener('click', async () => {
     const text = secretInput.value.trim();
+    
+    // Admin interception
+    if (text === "170924 관리자") {
+        secretInput.value = '';
+        openAdminDashboard();
+        return;
+    }
+    
     if (!text) return;
     
-    const adultKeywords = ['섹스', '야동', '자위', '조건만남', '음란', '성관계', '오르가즘', '페티쉬', '모텔', 'sex', 'porn', 'nude', 'fuck'];
+    const adultKeywords = [
+        '섹스', '야동', '자위', '조건만남', '음란', '성관계', '오르가즘', '페티쉬', '모텔', 
+        '신음', '정액', '삽입', '보지', '고추', '자지', '성기', '클리토리스', '지스팟', '처녀막',
+        'sex', 'porn', 'nude', 'fuck'
+    ];
     const isAdultContent = adultKeywords.some(keyword => text.toLowerCase().includes(keyword));
     
     if (isAdultContent && !adultOnlyCheckbox.checked) {
         alert("성적인 표현이나 관련 단어가 포함된 글은 'Adult only'를 체크해야 등록할 수 있습니다.\n(Posts containing adult keywords must have 'Adult only' checked.)");
+        return;
+    }
+
+    // Violent Crime Filter
+    const violentKeywords = ['살인', '강간', '살해', '성폭행', '토막', '암살', '납치', '시체', 'rape', 'murder'];
+    const isViolentContent = violentKeywords.some(keyword => text.toLowerCase().includes(keyword));
+    
+    if (isViolentContent) {
+        alert("살인, 성범죄 등 극단적인 범죄와 관련된 이야기는 플랫폼 정책상 절대 등록할 수 없습니다.\n(Stories related to extreme crimes cannot be shared.)");
         return;
     }
 
@@ -307,6 +340,162 @@ filterAdultView.addEventListener('change', () => {
         renderSecrets();
         secretsContainer.style.opacity = '1';
     }, 400);
+});
+
+// --- Admin Logic ---
+async function openAdminDashboard() {
+    adminDashboard.classList.remove('hidden');
+    adminLoading.classList.remove('hidden');
+    adminContent.classList.add('hidden');
+    
+    // Set up dummy states
+    let total = dummySecrets.length;
+    let counts = {
+        Personal: 0,
+        Society: 0,
+        Company: 0
+    };
+    
+    const dateCounts = {};
+    const DUMMY_DATE = '2026-04-18';
+    dateCounts[DUMMY_DATE] = total; 
+
+    // Categorize dummy secrets safely
+    dummySecrets.forEach(s => {
+        let cat = s.category;
+        if (!['Personal', 'Society', 'Company'].includes(cat)) {
+            cat = 'Personal';
+        }
+        counts[cat] = (counts[cat] || 0) + 1;
+    });
+
+    try {
+        moderationList.innerHTML = '';
+        const snap = await getDocs(secretsCollection);
+        
+        let fetchedDocs = []; // Array to sort documents newly
+
+        snap.forEach(documentSnap => {
+            const data = documentSnap.data();
+            total++;
+            
+            // Category aggregation
+            let cat = data.category;
+            if (!['Personal', 'Society', 'Company'].includes(cat)) {
+                cat = 'Personal'; // fallback for legacy items
+            }
+            counts[cat] = (counts[cat] || 0) + 1;
+            
+            // Date aggregation
+            let dateStrMeta = DUMMY_DATE;
+            let dateObjForSort = new Date('2026-04-18T00:00:00Z');
+            
+            if (data.createdAt) {
+                const dateObj = data.createdAt.toDate();
+                dateObjForSort = dateObj;
+                const yyyy = dateObj.getFullYear();
+                const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const dd = String(dateObj.getDate()).padStart(2, '0');
+                dateStrMeta = `${yyyy}-${mm}-${dd}`;
+                dateCounts[dateStrMeta] = (dateCounts[dateStrMeta] || 0) + 1;
+            } else {
+                dateCounts[DUMMY_DATE] = (dateCounts[DUMMY_DATE] || 0) + 1;
+            }
+            
+            // Push for sorting and rendering
+            fetchedDocs.push({
+                id: documentSnap.id,
+                data: data,
+                dateObj: dateObjForSort,
+                dateStr: dateStrMeta
+            });
+        });
+        
+        // Sort newest first
+        fetchedDocs.sort((a, b) => b.dateObj - a.dateObj);
+        
+        fetchedDocs.forEach(item => {
+            const modItem = document.createElement('div');
+            modItem.className = 'mod-item';
+            if (item.data.adult) modItem.setAttribute('data-adult', 'true');
+            
+            const isAdultFlag = item.data.adult ? `<span style="color:#ff6b6b; font-weight:bold;">[19+] </span>` : '';
+            const safeText = (item.data.text || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            
+            modItem.innerHTML = `
+                <div class="mod-meta">
+                    <span>${item.data.category || 'Personal'}</span>
+                    <span>${item.dateStr}</span>
+                </div>
+                <div class="mod-text">${isAdultFlag}${safeText}</div>
+                <div class="mod-action">
+                    <button class="btn-delete" data-id="${item.id}">Delete</button>
+                </div>
+            `;
+            moderationList.appendChild(modItem);
+        });
+        
+        // Bind Delete Events
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const idToDelete = e.target.getAttribute('data-id');
+                if (confirm("경고: 악성, 명예훼손, 도배 등의 사유로 이 글을 영구 삭제하시겠습니까?\n(Are you sure you want to delete this?)")) {
+                    try {
+                        await deleteDoc(doc(db, "secrets", idToDelete));
+                        // Remove from DOM immediately
+                        e.target.closest('.mod-item').remove();
+                        // Update basic counter roughly
+                        adminTotalPosts.textContent = (parseInt(adminTotalPosts.textContent.replace(/,/g, '')) - 1).toLocaleString();
+                    } catch (err) {
+                        alert("Deletion failed: " + err.message);
+                    }
+                }
+            });
+        });
+        
+        // Render UI values
+        adminTotalPosts.textContent = total.toLocaleString();
+        statPersonal.textContent = counts.Personal.toLocaleString();
+        statSociety.textContent = counts.Society.toLocaleString();
+        statCompany.textContent = counts.Company.toLocaleString();
+        
+        // Render Chart
+        adminDailyChart.innerHTML = '';
+        const dates = Object.keys(dateCounts).sort();
+        
+        let maxCount = 0;
+        dates.forEach(d => { if(dateCounts[d] > maxCount) maxCount = dateCounts[d]; });
+        if (maxCount === 0) maxCount = 1;
+        
+        dates.forEach(d => {
+            const val = dateCounts[d];
+            const heightPerc = Math.max((val / maxCount) * 100, 5); // Minimum 5% visible height
+            
+            const group = document.createElement('div');
+            group.className = 'chart-bar-group';
+            
+            const labelStr = d.substring(5); // Format: MM-DD
+            
+            group.innerHTML = `
+                <div class="chart-bar" style="height: ${heightPerc}%">
+                    <span class="bar-value">${val}</span>
+                </div>
+                <div class="chart-label">${labelStr}</div>
+            `;
+            adminDailyChart.appendChild(group);
+        });
+        
+        adminLoading.classList.add('hidden');
+        adminContent.classList.remove('hidden');
+        
+    } catch (e) {
+        console.error("Admin fetch error", e);
+        adminLoading.innerHTML = `<span style="color:red">Failed to load data: ${e.message}</span>`;
+    }
+}
+
+exitAdminBtn.addEventListener('click', () => {
+    adminDashboard.classList.add('hidden');
 });
 
 init();

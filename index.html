@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tell Me Your Secrets</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -78,7 +78,7 @@
     </footer>
 
     <div class="footer-copyright">
-        <p>Copyright 2026 mook03@gmail.com, v0.2 (260419)</p>
+        <p>Copyright 2026 mook, v0.3 (260419)</p>
     </div>
 
     <!-- Ad Pop-up Modal -->
@@ -91,6 +91,52 @@
                 <p class="ad-inquiry">For advertising inquiries: mook03@gmail.com<br>광고 문의: mook03@gmail.com</p>
                 <p>Please wait for a moment before seeing more secrets.</p>
                 <span class="ad-hint">(Click 'X' to close and view more secrets)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard (Hidden by default) -->
+    <div id="admin-dashboard" class="admin-dashboard hidden">
+        <div class="admin-panel glass">
+            <div class="admin-header">
+                <h2><i class="fas fa-shield-alt"></i> SYSTEM ADMINISTRATOR</h2>
+                <button id="exit-admin-btn" class="exit-btn"><i class="fas fa-sign-out-alt"></i> Exit</button>
+            </div>
+            
+            <div id="admin-loading" class="admin-loading">
+                <i class="fas fa-circle-notch fa-spin"></i> Fetching records...
+            </div>
+            
+            <div id="admin-content" class="admin-content hidden">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Posts</h3>
+                        <div id="admin-total-posts" class="stat-value">0</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>By Category</h3>
+                        <div class="category-stats">
+                            <div class="cat-stat"><span>Personal</span><strong id="stat-personal">0</strong></div>
+                            <div class="cat-stat"><span>Society</span><strong id="stat-society">0</strong></div>
+                            <div class="cat-stat"><span>Company</span><strong id="stat-company">0</strong></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-section stat-card">
+                    <h3>Daily Uploads</h3>
+                    <div id="admin-daily-chart" class="bar-chart-container">
+                        <!-- Bars injected by JS -->
+                    </div>
+                </div>
+                
+                <div class="moderation-section stat-card">
+                    <h3>Post Moderation (Real Database)</h3>
+                    <div id="moderation-list" class="moderation-list">
+                        <!-- Post items injected by JS -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
