@@ -202,16 +202,51 @@ body {
     border: none;
     color: var(--text-dim);
     font-size: 0.85rem;
-    margin-top: auto;
-    padding-top: 1rem;
     text-align: left;
     cursor: pointer;
     transition: color 0.2s;
     font-family: inherit;
+    padding: 0;
 }
 
 .btn-more:hover {
     color: var(--accent);
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: auto;
+    padding-top: 1rem;
+    width: 100%;
+}
+
+.empathy-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+    padding: 0;
+}
+
+.empathy-btn:hover {
+    color: #ff6b6b;
+    transform: scale(1.1);
+}
+
+.empathy-btn.liked {
+    color: #ff6b6b;
+}
+
+.empathy-btn.liked i {
+    font-weight: 900; /* Makes it solid if using FontAwesome 'far'/'fas' */
 }
 
 .more-secrets-btn {

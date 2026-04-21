@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
 import { 
-    getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, limit, getDocs, deleteDoc, doc
+    getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, limit, getDocs, deleteDoc, doc, increment
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
@@ -100,11 +100,23 @@ function setupFirebaseListener() {
         snapshot.forEach((doc) => {
             const data = doc.data();
             fetchedSecrets.push({
+                id: doc.id,
                 text: data.text,
                 category: data.category,
                 recipient: data.recipient,
-                adult: data.adult || false
+                adult: data.adult || false,
+                likes: data.likes || 0,
+                isFirebase: true
             });
+        });
+
+        // Initialize dummy properties safely once
+        dummySecrets.forEach((sec, idx) => {
+            if (!sec.id) {
+                sec.id = 'dummy_' + idx;
+                sec.likes = Math.floor(Math.random() * 30) + 5; 
+                sec.isFirebase = false;
+            }
         });
 
         // Combine DB secrets and dummy secrets to guarantee a good pool
@@ -185,10 +197,23 @@ function renderSecrets() {
         
         const safeText = secret.text.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>');
 
+        // Check if user already liked it in their local browser.
+        const effectiveId = secret.id || ('temp_' + Math.random().toString(36).substr(2, 9));
+        const effectiveLikes = (secret.likes !== undefined) ? secret.likes : 0;
+        
+        const likedStatus = localStorage.getItem('liked_' + effectiveId);
+        const likedClass = likedStatus ? 'liked' : '';
+        const iconStyle = likedStatus ? 'fas fa-heart' : 'far fa-heart';
+        
         cardNode.innerHTML = `
             <div class="category-tag">${label}</div>
             <div class="secret-text">${safeText}</div>
-            ${needsMore ? '<button class="btn-more">more...</button>' : ''}
+            <div class="card-footer">
+                <button class="empathy-btn ${likedClass}" data-id="${effectiveId}" data-isfirebase="${secret.isFirebase}">
+                    <i class="${iconStyle}"></i> <span class="empathy-count">${effectiveLikes}</span>
+                </button>
+                ${needsMore ? '<button class="btn-more">more...</button>' : '<div></div>'}
+            </div>
         `;
         
         secretsContainer.appendChild(cardNode);
@@ -197,13 +222,46 @@ function renderSecrets() {
     const expandBtns = document.querySelectorAll('.btn-more');
     expandBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-            const textEl = this.previousElementSibling;
+            const textEl = this.closest('.secret-card').querySelector('.secret-text');
             if (textEl.classList.contains('expanded')) {
                 textEl.classList.remove('expanded');
                 this.textContent = 'more...';
             } else {
                 textEl.classList.add('expanded');
                 this.textContent = 'less';
+            }
+        });
+    });
+
+    const empathyBtns = document.querySelectorAll('.empathy-btn');
+    empathyBtns.forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            const isFb = this.getAttribute('data-isfirebase') === 'true';
+            
+            // Anti-spam prevention
+            if (localStorage.getItem('liked_' + id)) return;
+            localStorage.setItem('liked_' + id, 'true');
+            
+            // Visual optimistic update
+            this.classList.add('liked');
+            this.querySelector('i').className = 'fas fa-heart';
+            const countSpan = this.querySelector('.empathy-count');
+            countSpan.textContent = parseInt(countSpan.textContent) + 1;
+            
+            // Firease Background Update
+            if (isFb) {
+                try {
+                    await updateDoc(doc(db, "secrets", id), {
+                        likes: increment(1)
+                    });
+                } catch(e) {
+                    console.error("Like failed to sync:", e);
+                }
+            } else {
+                // Dummy secrets update their local array mapping safely.
+                const target = dummySecrets.find(s => s.id === id);
+                if(target) target.likes++;
             }
         });
     });
