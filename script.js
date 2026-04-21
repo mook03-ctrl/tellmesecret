@@ -268,8 +268,17 @@ function renderSecrets() {
 }
 
 // Modal
+let adLoaded = false;
 moreBtn.addEventListener('click', () => {
     adModal.classList.remove('hidden');
+    if (!adLoaded) {
+        try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+            adLoaded = true;
+        } catch (e) {
+            console.error("AdSense Error: ", e);
+        }
+    }
 });
 
 closeModal.addEventListener('click', () => {
