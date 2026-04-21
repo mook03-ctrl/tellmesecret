@@ -309,6 +309,13 @@ submitBtn.addEventListener('click', async () => {
         openAdminDashboard();
         return;
     }
+
+    // Hidden trigger to explicitly show the adult only toggle
+    if (text.toLowerCase() === "show adult only") {
+        secretInput.value = '';
+        document.querySelector('.filter-adult-control').style.display = 'flex';
+        return;
+    }
     
     if (!text) return;
     
