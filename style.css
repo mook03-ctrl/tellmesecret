@@ -222,31 +222,48 @@ body {
     width: 100%;
 }
 
-.empathy-btn {
+.reaction-bar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.react-btn {
     background: none;
     border: none;
     color: var(--text-dim);
-    font-size: 1rem;
+    font-size: 1.1rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     font-family: inherit;
     padding: 0;
 }
 
-.empathy-btn:hover {
-    color: #ff6b6b;
-    transform: scale(1.1);
+.react-btn:hover {
+    transform: scale(1.15) translateY(-2px);
 }
 
-.empathy-btn.liked {
-    color: #ff6b6b;
+.react-count {
+    font-size: 0.8rem;
+    color: var(--text-dim);
 }
 
-.empathy-btn.liked i {
-    font-weight: 900; /* Makes it solid if using FontAwesome 'far'/'fas' */
+/* Specific Reaction Colors */
+.react-btn.active.r-heart { color: #ff6b6b; }
+.react-btn.active.r-todac { color: #ffd166; }
+.react-btn.active.r-hug { color: #06d6a0; }
+.react-btn.active.r-sad { color: #118ab2; }
+.react-btn.active.r-angry { color: #ef476f; }
+
+.react-btn.active i {
+    font-weight: 900;
+}
+.react-btn.active .react-count {
+    color: inherit;
+    font-weight: 600;
 }
 
 .more-secrets-btn {
@@ -265,7 +282,15 @@ body {
     flex-shrink: 0;
 }
 
-.more-secrets-btn:hover {
+.more-secrets-btn.disabled {
+    background: rgba(255, 255, 255, 0.02);
+    color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.05);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.more-secrets-btn:not(.disabled):hover {
     background: rgba(122, 154, 255, 0.2);
     border-color: var(--accent);
     color: var(--accent);

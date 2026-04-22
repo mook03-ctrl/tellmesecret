@@ -58,6 +58,7 @@ let basePostsRegistered = 2400; // Base thematic counter
 let totalDisplayedCounter = "...";
 let allSecrets = [...dummySecrets];
 let currentDisplayed = [];
+let availableUnlocks = 0;
 
 // DOM references
 const secretsContainer = document.getElementById('secrets-container');
@@ -86,6 +87,18 @@ const moderationList = document.getElementById('moderation-list');
 
 function init() {
     updateCounter();
+    
+    // Dynamic placeholder
+    const placeholderPrompts = [
+        "오늘 당신을 가장 힘들게 만든건 무엇인가요?",
+        "오늘은 어떤 설레임이었나요?",
+        "당신의 잊고 싶은 기억을 오늘 털어버리세요",
+        "당신만 알고 있는 소식을 알려주세요",
+        "그(그녀)에게 고백의 글을 남겨봐요"
+    ];
+    const randomPrompt = placeholderPrompts[Math.floor(Math.random() * placeholderPrompts.length)];
+    secretInput.placeholder = `Quietly write your secret here...\n${randomPrompt}`;
+    
     renderSecrets(); // Render immediately using local secrets
     setupFirebaseListener(); // Sync with real-time DB
 }
@@ -99,13 +112,26 @@ function setupFirebaseListener() {
         const fetchedSecrets = [];
         snapshot.forEach((doc) => {
             const data = doc.data();
+            
+            // Legacy likes migration
+            let reactMap = data.reactions || {};
+            if (data.likes !== undefined && !reactMap.heart) {
+                reactMap.heart = data.likes;
+            }
+            
             fetchedSecrets.push({
                 id: doc.id,
                 text: data.text,
                 category: data.category,
                 recipient: data.recipient,
                 adult: data.adult || false,
-                likes: data.likes || 0,
+                reactions: {
+                    heart: reactMap.heart || 0,
+                    todac: reactMap.todac || 0,
+                    hug: reactMap.hug || 0,
+                    sad: reactMap.sad || 0,
+                    angry: reactMap.angry || 0
+                },
                 isFirebase: true
             });
         });
@@ -114,7 +140,11 @@ function setupFirebaseListener() {
         dummySecrets.forEach((sec, idx) => {
             if (!sec.id) {
                 sec.id = 'dummy_' + idx;
-                sec.likes = Math.floor(Math.random() * 30) + 5; 
+                sec.reactions = {
+                    heart: Math.floor(Math.random() * 20),
+                    hug: Math.floor(Math.random() * 10),
+                    sad: Math.floor(Math.random() * 5)
+                };
                 sec.isFirebase = false;
             }
         });
@@ -201,21 +231,37 @@ function renderSecrets() {
         
         const safeText = secret.text.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>');
 
-        // Check if user already liked it in their local browser.
+        // Reaction State Setup
         const effectiveId = secret.id || ('temp_' + Math.random().toString(36).substr(2, 9));
-        const effectiveLikes = (secret.likes !== undefined) ? secret.likes : 0;
+        const currentVote = localStorage.getItem('react_' + effectiveId) || (localStorage.getItem('liked_' + effectiveId) ? 'heart' : null);
         
-        const likedStatus = localStorage.getItem('liked_' + effectiveId);
-        const likedClass = likedStatus ? 'liked' : '';
-        const iconStyle = likedStatus ? 'fas fa-heart' : 'far fa-heart';
-        
+        const reactConfig = [
+            { key: 'heart', icon: 'fa-heart', c: 'r-heart' },
+            { key: 'hug', icon: 'fa-hands', c: 'r-hug' },
+            { key: 'sad', icon: 'fa-sad-tear', c: 'r-sad' }
+        ];
+
+        let reactionsHTML = '<div class="reaction-bar">';
+        reactConfig.forEach(r => {
+            const count = (secret.reactions && secret.reactions[r.key]) ? secret.reactions[r.key] : 0;
+            const isActive = (currentVote === r.key);
+            const activeClass = isActive ? 'active' : '';
+            const displayCount = count > 0 ? count : '';
+            
+            reactionsHTML += `
+                <button class="react-btn ${activeClass} ${r.c}" data-id="${effectiveId}" data-key="${r.key}" data-isfirebase="${secret.isFirebase}">
+                    <i class="fas ${r.icon}"></i> 
+                    <span class="react-count">${displayCount}</span>
+                </button>
+            `;
+        });
+        reactionsHTML += '</div>';
+
         cardNode.innerHTML = `
             <div class="category-tag">${label}</div>
             <div class="secret-text">${safeText}</div>
             <div class="card-footer">
-                <button class="empathy-btn ${likedClass}" data-id="${effectiveId}" data-isfirebase="${secret.isFirebase}">
-                    <i class="${iconStyle}"></i> <span class="empathy-count">${effectiveLikes}</span>
-                </button>
+                ${reactionsHTML}
                 ${needsMore ? '<button class="btn-more">more...</button>' : '<div></div>'}
             </div>
         `;
@@ -237,35 +283,50 @@ function renderSecrets() {
         });
     });
 
-    const empathyBtns = document.querySelectorAll('.empathy-btn');
-    empathyBtns.forEach(btn => {
+    const reactBtns = document.querySelectorAll('.react-btn');
+    reactBtns.forEach(btn => {
         btn.addEventListener('click', async function() {
             const id = this.getAttribute('data-id');
+            const key = this.getAttribute('data-key');
             const isFb = this.getAttribute('data-isfirebase') === 'true';
             
-            // Anti-spam prevention
-            if (localStorage.getItem('liked_' + id)) return;
-            localStorage.setItem('liked_' + id, 'true');
+            // One Reaction Per Post Logic
+            const legacyLiked = localStorage.getItem('liked_' + id);
+            const existingVote = localStorage.getItem('react_' + id);
             
-            // Visual optimistic update
-            this.classList.add('liked');
-            this.querySelector('i').className = 'fas fa-heart';
-            const countSpan = this.querySelector('.empathy-count');
-            countSpan.textContent = parseInt(countSpan.textContent) + 1;
+            if (legacyLiked || existingVote) {
+                // To keep it simple, we don't allow swapping yet, just notify them.
+                if (existingVote !== key) {
+                    alert("하나의 글에는 하나의 감정만 남길 수 있습니다.\n(You can only leave one emotion per secret.)");
+                }
+                return;
+            }
             
-            // Firease Background Update
+            // Optimistic Local Save
+            localStorage.setItem('react_' + id, key);
+            
+            // Visual Update
+            this.classList.add('active');
+            const countSpan = this.querySelector('.react-count');
+            const currentNum = parseInt(countSpan.textContent) || 0;
+            countSpan.textContent = currentNum + 1;
+            
+            // Firebase Update
             if (isFb) {
                 try {
                     await updateDoc(doc(db, "secrets", id), {
-                        likes: increment(1)
+                        [`reactions.${key}`]: increment(1)
                     });
                 } catch(e) {
-                    console.error("Like failed to sync:", e);
+                    console.error("Reaction sync failed:", e);
                 }
             } else {
-                // Dummy secrets update their local array mapping safely.
+                // Update Local Dummy Array
                 const target = dummySecrets.find(s => s.id === id);
-                if(target) target.likes++;
+                if(target) {
+                    if(!target.reactions) target.reactions = {};
+                    target.reactions[key] = (target.reactions[key] || 0) + 1;
+                }
             }
         });
     });
@@ -274,6 +335,14 @@ function renderSecrets() {
 // Modal
 let adLoaded = false;
 moreBtn.addEventListener('click', () => {
+    if (availableUnlocks <= 0) return;
+    
+    // Consume a ticket
+    availableUnlocks--;
+    if (availableUnlocks === 0) {
+        moreBtn.classList.add('disabled');
+    }
+    
     adModal.classList.remove('hidden');
     if (!adLoaded) {
         try {
@@ -385,6 +454,10 @@ submitBtn.addEventListener('click', async () => {
     
     try {
         await addDoc(secretsCollection, newSecret);
+        
+        // Grant unlock for writing a secret
+        availableUnlocks++;
+        moreBtn.classList.remove('disabled');
         
         // Save to local storage to prevent immediate duplicate
         localStorage.setItem('lastPostedSecret', text);
