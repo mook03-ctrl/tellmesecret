@@ -55,7 +55,7 @@ const dummySecrets = [
 ];
 
 let basePostsRegistered = 2400; // Base thematic counter
-let totalDisplayedCounter = basePostsRegistered;
+let totalDisplayedCounter = "...";
 let allSecrets = [...dummySecrets];
 let currentDisplayed = [];
 
@@ -134,7 +134,11 @@ function setupFirebaseListener() {
 }
 
 function updateCounter() {
-    secretCounter.textContent = totalDisplayedCounter.toLocaleString();
+    if (typeof totalDisplayedCounter === 'number') {
+        secretCounter.textContent = totalDisplayedCounter.toLocaleString();
+    } else {
+        secretCounter.textContent = totalDisplayedCounter;
+    }
 }
 
 function shuffle(array) {
