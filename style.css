@@ -266,26 +266,6 @@ body {
     font-weight: 600;
 }
 
-/* Hashtag Pills inside Secret Card */
-.secret-tags {
-    margin-top: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 5px;
-}
-
-.hashtag {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.7);
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-family: 'Inter', sans-serif;
-    font-weight: 400;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
 .more-secrets-btn {
     background: rgba(122, 154, 255, 0.05);
     border: 1px solid var(--glass-border);
@@ -357,25 +337,6 @@ body {
 #secret-input::placeholder {
     color: rgba(148, 163, 184, 0.4);
     font-style: italic; /* A bit more atmospheric */
-}
-
-/* Hashes Input */
-.tags-input-field {
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-top: 1px dashed rgba(255,255,255,0.08);
-    color: var(--text-dim);
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
-    padding: 0.8rem 0;
-    margin-bottom: 0.5rem;
-    outline: none;
-}
-
-.tags-input-field::placeholder {
-    color: rgba(148, 163, 184, 0.3);
-    font-weight: 300;
 }
 
 /* Custom Scrollbar for text area */
@@ -894,6 +855,47 @@ body {
     color: white;
 }
 
+/* Language Selector */
+.language-selector {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 50;
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.lang-btn.active {
+    color: white;
+    text-shadow: 0 0 10px var(--accent-glow);
+}
+
+.lang-btn:hover {
+    color: white;
+}
+
+.lang-divider {
+    color: var(--text-dim);
+    opacity: 0.5;
+    font-size: 0.9rem;
+}
+
+/* Bilingual Support */
+body[data-lang="en"] .ko-only { display: none !important; }
+body[data-lang="ko"] .en-only { display: none !important; }
+
 /* Responsiveness */
 @media (max-width: 900px) {
     .secrets-carousel {
@@ -924,6 +926,11 @@ body {
         flex-direction: column;
         gap: 1.5rem;
         padding-top: 2rem;
+    }
+    
+    .language-selector {
+        top: 1rem;
+        right: 1rem;
     }
     
     .counter-wrapper {

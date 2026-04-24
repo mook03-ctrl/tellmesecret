@@ -67,7 +67,6 @@ const moreBtn = document.getElementById('more-btn');
 const adModal = document.getElementById('ad-modal');
 const closeModal = document.getElementById('close-modal');
 const secretInput = document.getElementById('secret-input');
-const tagsInput = document.getElementById('tags-input');
 const recipientSelect = document.getElementById('recipient-select');
 const categorySelect = document.getElementById('category-select');
 const adultOnlyCheckbox = document.getElementById('adult-only');
@@ -86,19 +85,74 @@ const statCompany = document.getElementById('stat-company');
 const adminDailyChart = document.getElementById('admin-daily-chart');
 const moderationList = document.getElementById('moderation-list');
 
-function init() {
-    updateCounter();
-    
-    // Dynamic placeholder
-    const placeholderPrompts = [
+let currentLang = 'en';
+const langEnBtn = document.getElementById('lang-en');
+const langKoBtn = document.getElementById('lang-ko');
+
+const placeholderPrompts = {
+    en: [
+        "What was the hardest part of your day?",
+        "What made your heart flutter today?",
+        "Leave behind the memories you want to forget today.",
+        "Share a secret only you know.",
+        "Leave a confession for him (her)."
+    ],
+    ko: [
         "오늘 당신을 가장 힘들게 만든건 무엇인가요?",
         "오늘은 어떤 설레임이었나요?",
         "당신의 잊고 싶은 기억을 오늘 털어버리세요",
         "당신만 알고 있는 소식을 알려주세요",
         "그(그녀)에게 고백의 글을 남겨봐요"
-    ];
-    const randomPrompt = placeholderPrompts[Math.floor(Math.random() * placeholderPrompts.length)];
-    secretInput.placeholder = `Quietly write your secret here...\n${randomPrompt}`;
+    ]
+};
+
+function updateLanguageUI() {
+    // Dropdowns
+    if (currentLang === 'ko') {
+        recipientSelect.options[0].text = "누군가에게";
+        recipientSelect.options[1].text = "당신에게";
+        categorySelect.options[0].text = "개인";
+        categorySelect.options[1].text = "사회";
+        categorySelect.options[2].text = "회사";
+    } else {
+        recipientSelect.options[0].text = "To someone";
+        recipientSelect.options[1].text = "To you";
+        categorySelect.options[0].text = "Personal";
+        categorySelect.options[1].text = "Society";
+        categorySelect.options[2].text = "Company";
+    }
+    
+    // Placeholder
+    const prompts = placeholderPrompts[currentLang];
+    const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+    if (currentLang === 'ko') {
+        secretInput.placeholder = `조용히 당신의 비밀을 적어주세요...\n${randomPrompt}`;
+    } else {
+        secretInput.placeholder = `Quietly write your secret here...\n${randomPrompt}`;
+    }
+}
+
+if (langEnBtn && langKoBtn) {
+    langEnBtn.addEventListener('click', () => {
+        currentLang = 'en';
+        document.body.setAttribute('data-lang', 'en');
+        langEnBtn.classList.add('active');
+        langKoBtn.classList.remove('active');
+        updateLanguageUI();
+    });
+    
+    langKoBtn.addEventListener('click', () => {
+        currentLang = 'ko';
+        document.body.setAttribute('data-lang', 'ko');
+        langKoBtn.classList.add('active');
+        langEnBtn.classList.remove('active');
+        updateLanguageUI();
+    });
+}
+
+function init() {
+    updateCounter();
+    updateLanguageUI();
     
     renderSecrets(); // Render immediately using local secrets
     setupFirebaseListener(); // Sync with real-time DB
@@ -133,7 +187,6 @@ function setupFirebaseListener() {
                     sad: reactMap.sad || 0,
                     angry: reactMap.angry || 0
                 },
-                tags: data.tags || [],
                 isFirebase: true
             });
         });
@@ -196,7 +249,10 @@ function renderSecrets() {
         secretsContainer.innerHTML = `
             <div class="secret-card glass" style="justify-content: center; align-items: center; text-align: center; max-height: 200px; margin: auto;">
                 <i class="fas fa-ghost" style="font-size: 2.5rem; color: var(--text-dim); margin-bottom: 1rem; opacity: 0.5;"></i>
-                <p style="color: var(--text-dim); font-style: italic;">No adult secrets discovered yet...</p>
+                <p style="color: var(--text-dim); font-style: italic;">
+                    <span class="en-only">No adult secrets discovered yet...</span>
+                    <span class="ko-only">등록된 성인 비밀이 없습니다...</span>
+                </p>
             </div>
         `;
         return;
@@ -218,10 +274,20 @@ function renderSecrets() {
         const cardNode = document.createElement('div');
         cardNode.className = 'secret-card glass';
         
-        let label = secret.recipient ? `${secret.recipient} • ${secret.category}` : secret.category;
+        let repEn = secret.recipient || "";
+        let catEn = secret.category || "";
+        let repKo = repEn === "To someone" ? "누군가에게" : (repEn === "To you" ? "당신에게" : repEn);
+        let catKo = catEn === "Personal" ? "개인" : (catEn === "Society" ? "사회" : (catEn === "Company" ? "회사" : catEn));
+        
+        let labelEn = repEn ? `${repEn} • ${catEn}` : catEn;
+        let labelKo = repKo ? `${repKo} • ${catKo}` : catKo;
+        
         if (secret.adult) {
-            label += " (Adult only)";
+            labelEn += " (Adult only)";
+            labelKo += " (성인 게시물)";
         }
+        
+        const labelSafe = `<span class="en-only">${labelEn}</span><span class="ko-only">${labelKo}</span>`;
         
         let visualLength = 0;
         for (let i = 0; i < secret.text.length; i++) {
@@ -259,22 +325,12 @@ function renderSecrets() {
         });
         reactionsHTML += '</div>';
 
-        let tagsHTML = '';
-        if (secret.tags && secret.tags.length > 0) {
-            tagsHTML = '<div class="secret-tags">';
-            secret.tags.forEach(t => {
-                tagsHTML += `<span class="hashtag">${t}</span>`;
-            });
-            tagsHTML += '</div>';
-        }
-
         cardNode.innerHTML = `
-            <div class="category-tag">${label}</div>
+            <div class="category-tag">${labelSafe}</div>
             <div class="secret-text">${safeText}</div>
-            ${tagsHTML}
             <div class="card-footer">
                 ${reactionsHTML}
-                ${needsMore ? '<button class="btn-more">more...</button>' : '<div></div>'}
+                ${needsMore ? '<button class="btn-more"><span class="en-only">more...</span><span class="ko-only">더보기...</span></button>' : '<div></div>'}
             </div>
         `;
         
@@ -287,10 +343,10 @@ function renderSecrets() {
             const textEl = this.closest('.secret-card').querySelector('.secret-text');
             if (textEl.classList.contains('expanded')) {
                 textEl.classList.remove('expanded');
-                this.textContent = 'more...';
+                this.innerHTML = '<span class="en-only">more...</span><span class="ko-only">더보기...</span>';
             } else {
                 textEl.classList.add('expanded');
-                this.textContent = 'less';
+                this.innerHTML = '<span class="en-only">less</span><span class="ko-only">접기</span>';
             }
         });
     });
@@ -454,25 +510,14 @@ submitBtn.addEventListener('click', async () => {
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Whispering...';
-
-    let rawTags = tagsInput ? tagsInput.value.trim() : '';
-    let parsedTags = [];
-    if (rawTags) {
-        let tagParts = rawTags.split(/\s+/);
-        tagParts.forEach(t => {
-            if (!t.startsWith('#')) t = '#' + t;
-            if (t.length > 1 && !parsedTags.includes(t)) parsedTags.push(t);
-        });
-    }
+    submitBtn.innerHTML = currentLang === 'ko' ? '<span class="ko-only">속삭이는 중...</span>' : '<span class="en-only">Whispering...</span>';
 
     const newSecret = {
         text: text,
         recipient: recipientSelect.value,
         category: categorySelect.value,
         adult: adultOnlyCheckbox.checked,
-        createdAt: serverTimestamp(),
-        tags: parsedTags
+        createdAt: serverTimestamp()
     };
     
     try {
@@ -487,7 +532,6 @@ submitBtn.addEventListener('click', async () => {
         
         // Reset input form
         secretInput.value = '';
-        if (tagsInput) tagsInput.value = '';
         adultOnlyCheckbox.checked = false;
         recipientSelect.value = 'To someone';
         categorySelect.value = 'Personal';
@@ -504,7 +548,7 @@ submitBtn.addEventListener('click', async () => {
         alert("Sorry, your secret couldn't be whispered... Try later.");
     } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Leave Secret';
+        submitBtn.innerHTML = '<span class="en-only">Leave Secret</span><span class="ko-only">비밀 남기기</span>';
     }
 });
 

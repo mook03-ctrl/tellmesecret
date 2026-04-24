@@ -11,9 +11,6 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://todac.me/">
     
-    <!-- Google Site Verification -->
-    <meta name="google-site-verification" content="6Cdq6-VSEkcJnqyVe-kQBPPkI6nzAhLyrxzwYdowqSY" />
-    
     <!-- Open Graph / SNS Share -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://todac.me/">
@@ -37,7 +34,7 @@
       "inLanguage": ["ko", "en"]
     }
     </script>
-    <link rel="stylesheet" href="style.css?v=3.4">
+    <link rel="stylesheet" href="style.css?v=3.3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Cinzel:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -45,23 +42,35 @@
     <!-- Google AdSense Main Library -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7863183620197765" crossorigin="anonymous"></script>
 </head>
-<body>
+<body data-lang="en">
     <div class="bg-stars"></div>
     <div class="bg-mist"></div>
 
     <header class="header">
+        <div class="language-selector">
+            <button id="lang-ko" class="lang-btn">KO</button>
+            <span class="lang-divider">|</span>
+            <button id="lang-en" class="lang-btn active">EN</button>
+        </div>
         <div class="header-center">
             <h1 class="title" style="font-family: 'Caveat', cursive; font-size: 5rem; color: #ffffff; text-shadow: 0 0 15px rgba(255, 143, 143, 0.4), 0 0 40px rgba(122, 154, 255, 0.2); font-weight: 400; letter-spacing: 2px; margin-bottom: -10px;">Todac, Todac</h1>
-            <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; color: #ffffff; margin-top: 8px; font-weight: 400; letter-spacing: 1.2px; text-shadow: 0 0 10px rgba(255, 143, 143, 0.3), 0 0 20px rgba(122, 154, 255, 0.3); font-style: italic;">Whisper your secrets — a gentle pat for your soul.</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; color: #ffffff; margin-top: 8px; font-weight: 400; letter-spacing: 1.2px; text-shadow: 0 0 10px rgba(255, 143, 143, 0.3), 0 0 20px rgba(122, 154, 255, 0.3); font-style: italic;">
+                <span class="en-only">Whisper your secrets — a gentle pat for your soul.</span>
+                <span class="ko-only">당신의 비밀을 속 시원히 털어버려요</span>
+            </p>
         </div>
         <div class="counter-wrapper">
-            <span class="counter-label">Total Whispers</span>
+            <span class="counter-label">
+                <span class="en-only">Total Whispers</span>
+                <span class="ko-only">전체 속삭임</span>
+            </span>
             <span id="secret-counter" class="counter-value">0</span>
             <div class="filter-adult-control" style="display: none;">
                 <label class="checkbox-container">
                     <input type="checkbox" id="filter-adult-view">
                     <span class="checkmark"></span>
-                    Show Adult Only
+                    <span class="en-only">Show Adult Only</span>
+                    <span class="ko-only">성인 게시물 표시</span>
                 </label>
             </div>
         </div>
@@ -69,8 +78,8 @@
 
     <div class="privacy-wrapper">
         <p class="privacy-notice" style="font-family: 'Inter', sans-serif; font-weight: 300; font-style: italic; color: rgba(253, 245, 230, 0.6); font-size: 0.75rem; letter-spacing: 0.3px;">
-            We do not collect or track any of your information.<br>
-            당신의 어떠한 정보도 수집하거나 추적하지 않습니다.
+            <span class="en-only">We do not collect or track any of your information.</span>
+            <span class="ko-only">당신의 어떠한 정보도 수집하거나 추적하지 않습니다.</span>
         </p>
     </div>
 
@@ -88,10 +97,9 @@
     <footer class="footer-input">
         <div class="input-panel glass">
             <textarea id="secret-input" placeholder="Quietly write your secret here..." rows="5"></textarea>
-            <input type="text" id="tags-input" class="tags-input-field" placeholder="#태그 입력 (선택사항) / #optional tags" autocomplete="off" spellcheck="false">
             <div id="unlock-hint" style="text-align: left; color: rgba(148, 163, 184, 0.4); margin: 6px 0 16px 0; padding-left: 2px;">
-                <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-style: italic; font-weight: 300; opacity: 0.9;">Write and share a secret to unlock 3 more stories.</span><br>
-                <span style="font-family: inherit; font-size: 0.8rem; font-style: italic; font-weight: 300; opacity: 0.8; margin-top: 2px; display: inline-block;">글을 하나 작성하셔야 다음 비밀 3개를 열어볼 수 있습니다.</span>
+                <span class="en-only" style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-style: italic; font-weight: 300; opacity: 0.9;">Write and share a secret to unlock 3 more stories.</span>
+                <span class="ko-only" style="font-family: inherit; font-size: 0.8rem; font-style: italic; font-weight: 300; opacity: 0.8; margin-top: 2px; display: inline-block;">글을 하나 작성하셔야 다음 비밀 3개를 열어볼 수 있습니다.</span>
             </div>
             <div class="controls-row">
                 <div class="options-group">
@@ -113,17 +121,22 @@
                     <label class="checkbox-container">
                         <input type="checkbox" id="adult-only">
                         <span class="checkmark"></span>
-                        Adult only
+                        <span class="en-only">Adult only</span>
+                        <span class="ko-only">성인 게시물</span>
                     </label>
                 </div>
-                <button id="submit-btn" class="submit-btn">Leave Secret</button>
+                <button id="submit-btn" class="submit-btn">
+                    <span class="en-only">Leave Secret</span>
+                    <span class="ko-only">비밀 남기기</span>
+                </button>
             </div>
         </div>
     </footer>
 
     <div class="footer-copyright">
-        <p>Todac: A Korean onomatopoeia for a gentle pat on the back.</p>
-        <p>Copyright 2026 todac.me, v0.5 (260422)</p>
+        <p class="en-only">Todac: A Korean onomatopoeia for a gentle pat on the back.</p>
+        <p class="ko-only">Todac: 등을 가볍게 토닥이는 소리를 나타내는 의성어입니다.</p>
+        <p>Copyright 2026 todac.me, v0.5</p>
     </div>
 
     <!-- Ad Pop-up Modal -->
@@ -187,6 +200,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=3.4"></script>
+    <script type="module" src="script.js?v=3.3"></script>
 </body>
 </html>
