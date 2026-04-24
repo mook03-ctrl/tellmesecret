@@ -67,6 +67,7 @@ const moreBtn = document.getElementById('more-btn');
 const adModal = document.getElementById('ad-modal');
 const closeModal = document.getElementById('close-modal');
 const secretInput = document.getElementById('secret-input');
+const tagsInput = document.getElementById('tags-input');
 const recipientSelect = document.getElementById('recipient-select');
 const categorySelect = document.getElementById('category-select');
 const adultOnlyCheckbox = document.getElementById('adult-only');
@@ -132,6 +133,7 @@ function setupFirebaseListener() {
                     sad: reactMap.sad || 0,
                     angry: reactMap.angry || 0
                 },
+                tags: data.tags || [],
                 isFirebase: true
             });
         });
@@ -257,9 +259,19 @@ function renderSecrets() {
         });
         reactionsHTML += '</div>';
 
+        let tagsHTML = '';
+        if (secret.tags && secret.tags.length > 0) {
+            tagsHTML = '<div class="secret-tags">';
+            secret.tags.forEach(t => {
+                tagsHTML += `<span class="hashtag">${t}</span>`;
+            });
+            tagsHTML += '</div>';
+        }
+
         cardNode.innerHTML = `
             <div class="category-tag">${label}</div>
             <div class="secret-text">${safeText}</div>
+            ${tagsHTML}
             <div class="card-footer">
                 ${reactionsHTML}
                 ${needsMore ? '<button class="btn-more">more...</button>' : '<div></div>'}
@@ -444,12 +456,23 @@ submitBtn.addEventListener('click', async () => {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Whispering...';
 
+    let rawTags = tagsInput ? tagsInput.value.trim() : '';
+    let parsedTags = [];
+    if (rawTags) {
+        let tagParts = rawTags.split(/\s+/);
+        tagParts.forEach(t => {
+            if (!t.startsWith('#')) t = '#' + t;
+            if (t.length > 1 && !parsedTags.includes(t)) parsedTags.push(t);
+        });
+    }
+
     const newSecret = {
         text: text,
         recipient: recipientSelect.value,
         category: categorySelect.value,
         adult: adultOnlyCheckbox.checked,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        tags: parsedTags
     };
     
     try {
@@ -464,6 +487,7 @@ submitBtn.addEventListener('click', async () => {
         
         // Reset input form
         secretInput.value = '';
+        if (tagsInput) tagsInput.value = '';
         adultOnlyCheckbox.checked = false;
         recipientSelect.value = 'To someone';
         categorySelect.value = 'Personal';

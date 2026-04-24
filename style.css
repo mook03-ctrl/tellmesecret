@@ -266,6 +266,26 @@ body {
     font-weight: 600;
 }
 
+/* Hashtag Pills inside Secret Card */
+.secret-tags {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.hashtag {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 .more-secrets-btn {
     background: rgba(122, 154, 255, 0.05);
     border: 1px solid var(--glass-border);
@@ -337,6 +357,25 @@ body {
 #secret-input::placeholder {
     color: rgba(148, 163, 184, 0.4);
     font-style: italic; /* A bit more atmospheric */
+}
+
+/* Hashes Input */
+.tags-input-field {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-top: 1px dashed rgba(255,255,255,0.08);
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.8rem 0;
+    margin-bottom: 0.5rem;
+    outline: none;
+}
+
+.tags-input-field::placeholder {
+    color: rgba(148, 163, 184, 0.3);
+    font-weight: 300;
 }
 
 /* Custom Scrollbar for text area */
