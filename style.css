@@ -855,15 +855,62 @@ body {
     color: white;
 }
 
-/* Language Selector */
-.language-selector {
+/* Top Right Controls (Search + Lang) */
+.top-right-controls {
     position: absolute;
     top: 2rem;
     right: 2rem;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 15px;
     z-index: 50;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 0.3rem 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.search-input {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    width: 120px;
+    transition: width 0.3s;
+}
+
+.search-input::placeholder {
+    color: rgba(148, 163, 184, 0.5);
+}
+
+.search-input:focus {
+    width: 150px;
+}
+
+.search-box i {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+/* Language Selector */
+.language-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .lang-btn {
@@ -896,6 +943,49 @@ body {
 body[data-lang="en"] .ko-only { display: none !important; }
 body[data-lang="ko"] .en-only { display: none !important; }
 
+/* In case we need inline-block */
+span.ko-only, span.en-only { display: inline-block; }
+body[data-lang="en"] span.ko-only { display: none !important; }
+body[data-lang="ko"] span.en-only { display: none !important; }
+
+/* Author Input */
+.author-input {
+    width: 80px;
+    padding: 0.5rem 0.6rem;
+    text-align: center;
+}
+.author-input::placeholder {
+    color: rgba(148, 163, 184, 0.4);
+}
+
+/* Search Mode Results */
+.secrets-carousel.search-mode {
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.secrets-container.search-mode {
+    flex-wrap: wrap;
+    justify-content: center;
+    max-height: 55vh;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.secrets-container.search-mode::-webkit-scrollbar {
+    width: 6px;
+}
+.secrets-container.search-mode::-webkit-scrollbar-thumb {
+    background: rgba(122, 154, 255, 0.3);
+    border-radius: 3px;
+}
+
+.secrets-container.search-mode .secret-card {
+    flex: 0 0 calc(33.333% - 1.5rem);
+    min-width: 300px;
+}
+
 /* Responsiveness */
 @media (max-width: 900px) {
     .secrets-carousel {
@@ -926,11 +1016,12 @@ body[data-lang="ko"] .en-only { display: none !important; }
         flex-direction: column;
         gap: 1.5rem;
         padding-top: 2rem;
-    }
-    
-    .language-selector {
+    .top-right-controls {
         top: 1rem;
         right: 1rem;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
     }
     
     .counter-wrapper {

@@ -24,34 +24,34 @@ const secretsCollection = collection(db, "secrets");
 // Pre-populated secrets to establish the mood (Base Data)
 const dummySecrets = [
     // English
-    { text: "The night you left, I sat on the floor until the sun came up. You told me you'd be back. Fifty-two months ago.", category: "To you", adult: false },
-    { text: "I lied about why I quit my job. I didn't find a better opportunity. The truth is, I just couldn't handle the emptiness inside anymore.", category: "To everyone", adult: false },
-    { text: "I wear the perfume you hated just to remind myself that we were never meant to be. But I still miss you.", category: "To someone", adult: false },
-    { text: "Sometimes I type out long messages to you, agonizing over every word, only to delete them entirely. I am too afraid to disturb the silence.", category: "To you", adult: false },
+    { text: "I just saw a stray cat and it made my day. It was so fluffy I wanted to take it home.", category: "To everyone", adult: false },
+    { text: "I didn't do anything productive today, but somehow I'm okay with that. Sometimes doing nothing is exactly what you need.", category: "To me", adult: false },
+    { text: "Just randomly thought about that one time I tripped in middle school. Why does my brain remember this?", category: "To everyone", adult: false },
+    { text: "I really want a pizza right now, but it's 2 AM. The struggle is real.", category: "To everyone", adult: false },
     
     // Korean
-    { text: "네가 쓰던 향수와 같은 향을 맡을 때면 하루종일 아무것도 할 수가 없어. 아직도 내 시간은 그때에 멈춰있나 봐.", category: "To you", adult: false },
-    { text: "아직도 내 넷플릭스 프로필 네 이름 옆에 있어. 지울 수가 없어서 그냥 놔뒀어. 가끔 네가 로그인했나 확인해.", category: "To someone", adult: false },
-    { text: "부모님껜 승진했다고 거짓말했어. 사실 어제 해고당했는데, 다 큰 자식이 우는 모습은 도저히 보여드릴 용기가 안 나.", category: "To everyone", adult: false },
-    { text: "미안해. 그때 내가 널 잡지 않은 건, 네가 더 행복해지길 바라서가 아니라 오직 내 이기심 때문이었어.", category: "To you", adult: false },
+    { text: "오늘 길가다가 진짜 귀여운 강아지를 봤다. 꼬리를 살랑살랑 흔드는데 심장 멎는 줄 알았어.", category: "To everyone", adult: false },
+    { text: "다이어트 한다고 해놓고 방금 라면 물 올렸다. 뭐 어때, 맛있게 먹으면 0칼로리.", category: "To me", adult: false },
+    { text: "비 오는 날 집에서 빗소리 들으면서 커피 마시는 게 세상에서 제일 좋아.", category: "To everyone", adult: false },
+    { text: "아무것도 안 하고 누워만 있었는데 벌써 저녁이야. 내 주말 어디 갔지?", category: "To me", adult: false },
 
     // Japanese
-    { text: "携帯の番号、わざと消さずにいるの。もう二度とかけてこないって分かってるのに。", category: "To someone", adult: false },
-    { text: "誰にも言えない秘密がある。本当は、すべてを捨てて遠くへ逃げ出したいってこと。毎朝、ホームから線路を見つめてしまう。", category: "To everyone", adult: false },
-    { text: "あなたの匂いと似た人とすれ違うたび、心臓が止まりそうになる。振り返って違う人だと気づく時の絶望感。", category: "To you", adult: false },
-    { text: "「大丈夫」って言うのは、これ以上誰かを信じて傷つきたくないからついた、ただの嘘だよ。", category: "To everyone", adult: false },
+    { text: "今日見た夕焼けがすごく綺麗だった。ただそれだけだけど、誰かにも見せたかったな。", category: "To everyone", adult: false },
+    { text: "ダイエット中なのに甘いものを食べてしまった。明日から本気出す…たぶん。", category: "To me", adult: false },
+    { text: "昔好きだった曲を久しぶりに聴いたら、あの頃の匂いがした気がする。", category: "To everyone", adult: false },
+    { text: "何もしたくない日ってあるよね。今日は一日中パジャマで過ごした。", category: "To me", adult: false },
 
     // Spanish
-    { text: "Todavía guardo la carta que me diste. A veces la leo en silencio para recordar qué se siente ser amado.", category: "To you", adult: false },
-    { text: "Sonrío todo el día con mis amigos, pero en la noche, el silencio y la soledad me consumen por completo.", category: "To everyone", adult: false },
-    { text: "Ayer te vi en la estación. Te veías tan feliz con ella que me dolió respirar, así que me di la vuelta antes de que me vieras.", category: "To someone", adult: false },
-    { text: "Nadie sabe que lloro en mi auto antes de entrar a mi propia casa. Aparento que mi vida es perfecta, pero estoy roto por dentro.", category: "To everyone", adult: false },
+    { text: "Hoy vi un perro en la calle y me sonrió. Quizás fue mi imaginación, pero me hizo el día.", category: "To everyone", adult: false },
+    { text: "Prometí hacer ejercicio pero aquí estoy, comiendo helado. Mañana será otro día.", category: "To me", adult: false },
+    { text: "Qué lindo es dormir mientras llueve. Ese sonido me da una paz increíble.", category: "To everyone", adult: false },
+    { text: "Tengo muchas cosas que hacer, pero primero una siesta. Las prioridades son claras.", category: "To me", adult: false },
     
-    // Adult Only (19+) Themes
-    { text: "We spent the whole night tangled in those cheap motel sheets, promising to leave our spouses. We both knew in the morning it was a lie.", category: "To someone", adult: true },
-    { text: "술 취해서 네 방 문을 두드렸던 그날 밤, 넘지 말아야 할 선을 넘은 걸 후회하진 않아. 다만 아침에 짓던 네 차가운 표정만은 지우고 싶어.", category: "To you", adult: true },
-    { text: "あなたの奥さんが隣で寝ているのに、ベッドの下で息を殺して朝を待っていた。優しくされるほど、自分が汚れていく気がするの。", category: "To everyone", adult: true },
-    { text: "Te besé desesperadamente en la oscuridad, sabiendo que al encenderse las luces volverías a ser solo un extraño con anillo de casado.", category: "To someone", adult: true }
+    // Adult Only (19+) Themes (Still random venting but 19+)
+    { text: "I went out drinking thinking I'd just have one beer. Woke up on my friend's lawn. Classic.", category: "To everyone", adult: true },
+    { text: "어제 술김에 전 애인한테 자니? 라고 보냈다. 진짜 이불킥 오천번 하고 싶다 ㅠㅠ 미쳤지 내가.", category: "To me", adult: true },
+    { text: "飲み会で調子に乗って上司のモノマネをしたら、後ろに本人がいた。明日会社に行きたくない。", category: "To everyone", adult: true },
+    { text: "Me tomé tres tequilas de más y le escribí a mi ex. ¿Por qué el alcohol me hace hacer estas cosas?", category: "To me", adult: true }
 ];
 
 let basePostsRegistered = 2400; // Base thematic counter
@@ -59,6 +59,7 @@ let totalDisplayedCounter = "...";
 let allSecrets = [...dummySecrets];
 let currentDisplayed = [];
 let availableUnlocks = 0;
+let currentSearchQuery = '';
 
 // DOM references
 const secretsContainer = document.getElementById('secrets-container');
@@ -72,6 +73,10 @@ const categorySelect = document.getElementById('category-select');
 const adultOnlyCheckbox = document.getElementById('adult-only');
 const submitBtn = document.getElementById('submit-btn');
 const filterAdultView = document.getElementById('filter-adult-view');
+const authorInput = document.getElementById('author-input');
+const authorSearch = document.getElementById('author-search');
+const searchBtn = document.getElementById('search-btn');
+const secretsCarousel = document.querySelector('.secrets-carousel');
 
 // Admin DOM
 const adminDashboard = document.getElementById('admin-dashboard');
@@ -91,18 +96,18 @@ const langKoBtn = document.getElementById('lang-ko');
 
 const placeholderPrompts = {
     en: [
-        "What was the hardest part of your day?",
-        "What made your heart flutter today?",
-        "Leave behind the memories you want to forget today.",
-        "Share a secret only you know.",
-        "Leave a confession for him (her)."
+        "What are you thinking right now?",
+        "Did anything fun happen today?",
+        "Leave a random note about literally anything.",
+        "What do you want to eat right now?",
+        "Just doodle whatever comes to mind."
     ],
     ko: [
-        "오늘 당신을 가장 힘들게 만든건 무엇인가요?",
-        "오늘은 어떤 설레임이었나요?",
-        "당신의 잊고 싶은 기억을 오늘 털어버리세요",
-        "당신만 알고 있는 소식을 알려주세요",
-        "그(그녀)에게 고백의 글을 남겨봐요"
+        "지금 머릿속에 떠오르는 생각은 뭐예요?",
+        "오늘 하루 중 가장 재밌었던 일은?",
+        "아무 이유 없이 그냥 흔적을 남겨보세요.",
+        "지금 제일 먹고 싶은 음식이 뭐예요?",
+        "생각나는 대로 아무거나 끄적여보세요."
     ]
 };
 
@@ -126,9 +131,13 @@ function updateLanguageUI() {
     const prompts = placeholderPrompts[currentLang];
     const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
     if (currentLang === 'ko') {
-        secretInput.placeholder = `조용히 당신의 비밀을 적어주세요...\n${randomPrompt}`;
+        secretInput.placeholder = `아무 생각이나 가볍게 끄적여보세요...\n${randomPrompt}`;
+        authorSearch.placeholder = '글쓴이로 검색하기';
+        if (!authorInput.value || authorInput.value === 'SB') authorInput.value = '누군가';
     } else {
-        secretInput.placeholder = `Quietly write your secret here...\n${randomPrompt}`;
+        secretInput.placeholder = `Jot down whatever is on your mind...\n${randomPrompt}`;
+        authorSearch.placeholder = 'Search by author';
+        if (!authorInput.value || authorInput.value === '누군가') authorInput.value = 'SB';
     }
 }
 
@@ -180,6 +189,7 @@ function setupFirebaseListener() {
                 category: data.category,
                 recipient: data.recipient,
                 adult: data.adult || false,
+                author: data.author || (currentLang === 'ko' ? '누군가' : 'SB'),
                 reactions: {
                     heart: reactMap.heart || 0,
                     todac: reactMap.todac || 0,
@@ -236,13 +246,35 @@ function shuffle(array) {
     return array;
 }
 
-function renderSecrets() {
+function renderSecrets(searchQuery = currentSearchQuery) {
+    currentSearchQuery = searchQuery;
     secretsContainer.innerHTML = '';
     
     // Filter target secrets based on the Adult Only toggle
     let targetSecrets = filterAdultView.checked ? 
                         allSecrets.filter(s => s.adult === true) : 
                         allSecrets.filter(s => s.adult !== true);
+
+    // Apply Author search filter
+    const isSearching = searchQuery.trim().length > 0;
+    if (isSearching) {
+        const queryLower = searchQuery.toLowerCase();
+        let matchAnonym = false;
+        if (queryLower === '누군가' || queryLower === 'sb' || queryLower === '익명') matchAnonym = true;
+
+        targetSecrets = targetSecrets.filter(s => {
+            const auth = (s.author || '').toLowerCase();
+            return auth.includes(queryLower) || (matchAnonym && (!auth || auth === 'sb' || auth === '익명' || auth === '누군가' || auth === 'anonymous')); // Keep anonymous for legacy posts
+        });
+        
+        secretsCarousel.classList.add('search-mode');
+        secretsContainer.classList.add('search-mode');
+        moreBtn.style.display = 'none';
+    } else {
+        secretsCarousel.classList.remove('search-mode');
+        secretsContainer.classList.remove('search-mode');
+        moreBtn.style.display = 'flex';
+    }
 
     if (targetSecrets.length === 0) {
         currentDisplayed = [];
@@ -258,19 +290,26 @@ function renderSecrets() {
         return;
     }
 
-    // Pick 3 random secrets that are completely new from target pool
-    let available = targetSecrets.filter(s => {
-        return !currentDisplayed.some(cd => cd.text === s.text);
-    });
-    
-    if (available.length < 3) {
-        available = [...targetSecrets];
+    // Display Logic
+    let toDisplay = [];
+    if (isSearching) {
+        toDisplay = targetSecrets; // Show all matching search
+    } else {
+        // Pick 3 random secrets that are completely new from target pool
+        let available = targetSecrets.filter(s => {
+            return !currentDisplayed.some(cd => cd.text === s.text);
+        });
+        
+        if (available.length < 3) {
+            available = [...targetSecrets];
+        }
+        
+        toDisplay = shuffle(available).slice(0, 3);
     }
     
-    const shuffled = shuffle(available);
-    currentDisplayed = shuffled.slice(0, 3);
+    currentDisplayed = isSearching ? [] : toDisplay;
     
-    currentDisplayed.forEach(secret => {
+    toDisplay.forEach(secret => {
         const cardNode = document.createElement('div');
         cardNode.className = 'secret-card glass';
         
@@ -279,8 +318,10 @@ function renderSecrets() {
         let repKo = repEn === "To someone" ? "누군가에게" : (repEn === "To you" ? "당신에게" : repEn);
         let catKo = catEn === "Personal" ? "개인" : (catEn === "Society" ? "사회" : (catEn === "Company" ? "회사" : catEn));
         
-        let labelEn = repEn ? `${repEn} • ${catEn}` : catEn;
-        let labelKo = repKo ? `${repKo} • ${catKo}` : catKo;
+        const safeAuthor = (secret.author || (currentLang === 'ko' ? '누군가' : 'SB')).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        
+        let labelEn = `from ${safeAuthor} • ` + (repEn ? `${repEn} • ${catEn}` : catEn);
+        let labelKo = `from ${safeAuthor} • ` + (repKo ? `${repKo} • ${catKo}` : catKo);
         
         if (secret.adult) {
             labelEn += " (Adult only)";
@@ -365,7 +406,7 @@ function renderSecrets() {
             if (legacyLiked || existingVote) {
                 // To keep it simple, we don't allow swapping yet, just notify them.
                 if (existingVote !== key) {
-                    alert("하나의 글에는 하나의 감정만 남길 수 있습니다.\n(You can only leave one emotion per secret.)");
+                    alert("하나의 글에는 하나의 감정만 남길 수 있습니다.\n(You can only leave one emotion per post.)");
                 }
                 return;
             }
@@ -493,30 +534,31 @@ submitBtn.addEventListener('click', async () => {
     // Duplicate Check
     const lastPosted = localStorage.getItem('lastPostedSecret');
     if (lastPosted && lastPosted.toLowerCase() === text.toLowerCase()) {
-        alert("방금 작성하신 글과 동일한 내용을 반복해서 올릴 수 없습니다.\n(You cannot post the exact same secret repeatedly.)");
+        alert("방금 작성하신 글과 동일한 내용을 반복해서 올릴 수 없습니다.\n(You cannot post the exact same scribble repeatedly.)");
         return;
     }
     
     const isGlobalDuplicate = allSecrets.some(secret => secret.text.toLowerCase() === text.toLowerCase());
     if (isGlobalDuplicate) {
-        alert("이미 누군가가 작성했거나 방금 등록된 동일한 내용의 비밀입니다.\n(This secret has already been shared recently.)");
+        alert("이미 누군가가 작성했거나 방금 등록된 동일한 내용입니다.\n(This scribble has already been shared recently.)");
         return;
     }
 
     const lines = text.split('\n');
     if (lines.length > 5) {
-        alert("Please limit your secret to 5 lines maximum.");
+        alert("Please limit your scribble to 5 lines maximum.");
         return;
     }
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = currentLang === 'ko' ? '<span class="ko-only">속삭이는 중...</span>' : '<span class="en-only">Whispering...</span>';
+    submitBtn.innerHTML = currentLang === 'ko' ? '<span class="ko-only">끄적이는 중...</span>' : '<span class="en-only">Scribbling...</span>';
 
     const newSecret = {
         text: text,
         recipient: recipientSelect.value,
         category: categorySelect.value,
         adult: adultOnlyCheckbox.checked,
+        author: authorInput.value.trim() || (currentLang === 'ko' ? '누군가' : 'SB'),
         createdAt: serverTimestamp()
     };
     
@@ -545,10 +587,10 @@ submitBtn.addEventListener('click', async () => {
         }, 400);
     } catch (error) {
         console.error("Error adding document: ", error);
-        alert("Sorry, your secret couldn't be whispered... Try later.");
+        alert("Sorry, your scribble couldn't be saved... Try later.");
     } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="en-only">Leave Secret</span><span class="ko-only">비밀 남기기</span>';
+        submitBtn.innerHTML = '<span class="en-only">Leave Scribble</span><span class="ko-only">끄적이기</span>';
     }
 });
 
@@ -559,6 +601,17 @@ filterAdultView.addEventListener('change', () => {
         renderSecrets();
         secretsContainer.style.opacity = '1';
     }, 400);
+});
+
+// Search by Author Logic
+authorSearch.addEventListener('input', (e) => {
+    renderSecrets(e.target.value);
+});
+searchBtn.addEventListener('click', () => {
+    if (!authorSearch.value.trim()) {
+        authorSearch.value = currentLang === 'ko' ? '누군가' : 'SB';
+        renderSecrets(authorSearch.value);
+    }
 });
 
 // --- Admin Logic ---

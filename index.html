@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todac, Todac - 익명 비밀 공유 및 위로 커뮤니티</title>
+    <title>Todac, Todac - 아무 이유 없이 끄적이는 공간</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Todac (토닥) - 익명으로 당신의 마음속 비밀과 고민을 털어놓으세요. Whisper your secrets anonymously and get a gentle pat for your soul. 위로와 공감이 있는 안전한 익명 커뮤니티입니다.">
-    <meta name="keywords" content="익명 게시판, 비밀, 고민 상담, 토닥토닥, 위로, 힐링, anonymous secrets, share secrets, safe space, venting, todac">
+    <meta name="description" content="Todac (토닥) - 아무 이유 없이 마음속 이야기를 끄적이고 가세요. Leave your random thoughts safely. 가볍게 흔적을 남기는 공간입니다.">
+    <meta name="keywords" content="익명 게시판, 끄적이기, 낙서장, 토닥토닥, 자유게시판, random thoughts, scribble, venting, todac">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://todac.me/">
     
     <!-- Open Graph / SNS Share -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://todac.me/">
-    <meta property="og:title" content="Todac, Todac - 당신의 치유 공간">
-    <meta property="og:description" content="아무에게도 말하지 못한 당신의 마음속 비밀을 익명으로 털어놓고 위로받는 곳입니다. A gentle pat for your soul.">
+    <meta property="og:title" content="Todac, Todac - 아무 이유 없이 끄적이는 공간">
+    <meta property="og:description" content="가볍게 스쳐가는 생각들, 아무 이유 없이 끄적이고 가는 곳입니다. Just leave your random thoughts.">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://todac.me/">
-    <meta name="twitter:title" content="Todac, Todac - Whisper your secrets">
-    <meta name="twitter:description" content="익명으로 남기는 나만의 비밀, 그리고 따뜻한 위로.">
+    <meta name="twitter:title" content="Todac, Todac - Scribble your thoughts">
+    <meta name="twitter:description" content="익명으로 남기는 나만의 끄적임.">
     
     <!-- JSON-LD Structured Data for Google -->
     <script type="application/ld+json">
@@ -30,11 +30,11 @@
       "@type": "WebSite",
       "name": "Todac, Todac",
       "url": "https://todac.me/",
-      "description": "An anonymous secret sharing and comforting platform. 익명 비밀 공유 및 위로 커뮤니티.",
+      "description": "A place to scribble random thoughts. 자유롭게 끄적이는 공간.",
       "inLanguage": ["ko", "en"]
     }
     </script>
-    <link rel="stylesheet" href="style.css?v=3.3">
+    <link rel="stylesheet" href="style.css?v=3.5">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Cinzel:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -47,22 +47,28 @@
     <div class="bg-mist"></div>
 
     <header class="header">
-        <div class="language-selector">
-            <button id="lang-ko" class="lang-btn">KO</button>
-            <span class="lang-divider">|</span>
-            <button id="lang-en" class="lang-btn active">EN</button>
+        <div class="top-right-controls">
+            <div class="search-box">
+                <input type="text" id="author-search" class="search-input" maxlength="7">
+                <i class="fas fa-search" id="search-btn"></i>
+            </div>
+            <div class="language-selector">
+                <button id="lang-ko" class="lang-btn">KO</button>
+                <span class="lang-divider">|</span>
+                <button id="lang-en" class="lang-btn active">EN</button>
+            </div>
         </div>
         <div class="header-center">
-            <h1 class="title" style="font-family: 'Caveat', cursive; font-size: 5rem; color: #ffffff; text-shadow: 0 0 15px rgba(255, 143, 143, 0.4), 0 0 40px rgba(122, 154, 255, 0.2); font-weight: 400; letter-spacing: 2px; margin-bottom: -10px;">Todac, Todac</h1>
+            <h1 class="title" onclick="window.location.href='https://todac.me'" style="cursor: pointer; font-family: 'Caveat', cursive; font-size: 5rem; color: #ffffff; text-shadow: 0 0 15px rgba(255, 143, 143, 0.4), 0 0 40px rgba(122, 154, 255, 0.2); font-weight: 400; letter-spacing: 2px; margin-bottom: -10px;">Todac, Todac</h1>
             <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; color: #ffffff; margin-top: 8px; font-weight: 400; letter-spacing: 1.2px; text-shadow: 0 0 10px rgba(255, 143, 143, 0.3), 0 0 20px rgba(122, 154, 255, 0.3); font-style: italic;">
-                <span class="en-only">Whisper your secrets — a gentle pat for your soul.</span>
-                <span class="ko-only">당신의 비밀을 속 시원히 털어버려요</span>
+                <span class="en-only">Just leave a scribble for no reason at all.</span>
+                <span class="ko-only">그냥 아무 이유 없이 끄적이고 가세요.</span>
             </p>
         </div>
         <div class="counter-wrapper">
             <span class="counter-label">
-                <span class="en-only">Total Whispers</span>
-                <span class="ko-only">전체 속삭임</span>
+                <span class="en-only">Total Scribbles</span>
+                <span class="ko-only">전체 끄적임</span>
             </span>
             <span id="secret-counter" class="counter-value">0</span>
             <div class="filter-adult-control" style="display: none;">
@@ -88,7 +94,7 @@
             <div id="secrets-container" class="secrets-container">
                 <!-- Secret cards injected by JavaScript -->
             </div>
-            <button id="more-btn" class="more-secrets-btn disabled" title="Share a secret to see more">
+            <button id="more-btn" class="more-secrets-btn disabled" title="Scribble something to see more">
                 <i class="fas fa-chevron-right"></i>
             </button>
         </section>
@@ -98,8 +104,8 @@
         <div class="input-panel glass">
             <textarea id="secret-input" placeholder="Quietly write your secret here..." rows="5"></textarea>
             <div id="unlock-hint" style="text-align: left; color: rgba(148, 163, 184, 0.4); margin: 6px 0 16px 0; padding-left: 2px;">
-                <span class="en-only" style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-style: italic; font-weight: 300; opacity: 0.9;">Write and share a secret to unlock 3 more stories.</span>
-                <span class="ko-only" style="font-family: inherit; font-size: 0.8rem; font-style: italic; font-weight: 300; opacity: 0.8; margin-top: 2px; display: inline-block;">글을 하나 작성하셔야 다음 비밀 3개를 열어볼 수 있습니다.</span>
+                <span class="en-only" style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-style: italic; font-weight: 300; opacity: 0.9;">Leave a quick scribble to unlock 3 more notes.</span>
+                <span class="ko-only" style="font-family: inherit; font-size: 0.8rem; font-style: italic; font-weight: 300; opacity: 0.8; margin-top: 2px; display: inline-block;">끄적임 하나를 남기면 다른 사람의 글 3개를 볼 수 있습니다.</span>
             </div>
             <div class="controls-row">
                 <div class="options-group">
@@ -109,6 +115,9 @@
                             <option value="To you">To you</option>
                         </select>
                         <i class="fas fa-caret-down select-icon"></i>
+                    </div>
+                    <div class="custom-select-wrapper">
+                        <input type="text" id="author-input" class="dropdown author-input" maxlength="7">
                     </div>
                     <div class="custom-select-wrapper">
                         <select id="category-select" class="dropdown">
@@ -126,8 +135,8 @@
                     </label>
                 </div>
                 <button id="submit-btn" class="submit-btn">
-                    <span class="en-only">Leave Secret</span>
-                    <span class="ko-only">비밀 남기기</span>
+                    <span class="en-only">Leave Scribble</span>
+                    <span class="ko-only">끄적이기</span>
                 </button>
             </div>
         </div>
@@ -136,7 +145,7 @@
     <div class="footer-copyright">
         <p class="en-only">Todac: A Korean onomatopoeia for a gentle pat on the back.</p>
         <p class="ko-only">Todac: 등을 가볍게 토닥이는 소리를 나타내는 의성어입니다.</p>
-        <p>Copyright 2026 todac.me, v0.5</p>
+        <p>Copyright 2026 todac.me, v0.6</p>
     </div>
 
     <!-- Ad Pop-up Modal -->
@@ -200,6 +209,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=3.3"></script>
+    <script type="module" src="script.js?v=3.5"></script>
 </body>
 </html>
