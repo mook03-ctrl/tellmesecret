@@ -91,8 +91,27 @@ const adminDailyChart = document.getElementById('admin-daily-chart');
 const moderationList = document.getElementById('moderation-list');
 
 let currentLang = 'en';
+const userLang = navigator.language || navigator.userLanguage || '';
+if (userLang.toLowerCase().includes('ko')) {
+    currentLang = 'ko';
+    document.body.setAttribute('data-lang', 'ko');
+} else if (userLang.toLowerCase().includes('ja')) {
+    currentLang = 'ja';
+    document.body.setAttribute('data-lang', 'ja');
+}
 const langEnBtn = document.getElementById('lang-en');
 const langKoBtn = document.getElementById('lang-ko');
+const langJaBtn = document.getElementById('lang-ja');
+
+// Sync button states on load
+if (langEnBtn && langKoBtn && langJaBtn) {
+    langEnBtn.classList.remove('active');
+    langKoBtn.classList.remove('active');
+    langJaBtn.classList.remove('active');
+    if (currentLang === 'ko') langKoBtn.classList.add('active');
+    else if (currentLang === 'ja') langJaBtn.classList.add('active');
+    else langEnBtn.classList.add('active');
+}
 
 const placeholderPrompts = {
     en: [
@@ -108,6 +127,13 @@ const placeholderPrompts = {
         "아무 이유 없이 그냥 흔적을 남겨보세요.",
         "지금 제일 먹고 싶은 음식이 뭐예요?",
         "생각나는 대로 아무거나 끄적여보세요."
+    ],
+    ja: [
+        "今何を考えていますか？",
+        "今日何か面白いことあった？",
+        "ただ理由もなく、メモを残してみてください。",
+        "今一番食べたいものは何ですか？",
+        "思い浮かんだことをそのまま書いてみてください。"
     ]
 };
 
@@ -119,6 +145,12 @@ function updateLanguageUI() {
         categorySelect.options[0].text = "개인";
         categorySelect.options[1].text = "사회";
         categorySelect.options[2].text = "회사";
+    } else if (currentLang === 'ja') {
+        recipientSelect.options[0].text = "誰かへ";
+        recipientSelect.options[1].text = "あなたへ";
+        categorySelect.options[0].text = "個人";
+        categorySelect.options[1].text = "社会";
+        categorySelect.options[2].text = "会社";
     } else {
         recipientSelect.options[0].text = "To someone";
         recipientSelect.options[1].text = "To you";
@@ -131,22 +163,31 @@ function updateLanguageUI() {
     const prompts = placeholderPrompts[currentLang];
     const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
     if (currentLang === 'ko') {
-        secretInput.placeholder = `아무 생각이나 가볍게 끄적여보세요...\n${randomPrompt}`;
+        secretInput.placeholder = `아무 얘기나 끄적여보세요...\n${randomPrompt}`;
         authorSearch.placeholder = '글쓴이로 검색하기';
-        if (!authorInput.value || authorInput.value === 'SB') authorInput.value = '누군가';
+        authorInput.placeholder = '내가';
+    } else if (currentLang === 'ja') {
+        secretInput.placeholder = `何でも気軽に書いてみてください...\n${randomPrompt}`;
+        authorSearch.placeholder = '作成者で検索';
+        authorInput.placeholder = '私';
     } else {
         secretInput.placeholder = `Jot down whatever is on your mind...\n${randomPrompt}`;
         authorSearch.placeholder = 'Search by author';
-        if (!authorInput.value || authorInput.value === '누군가') authorInput.value = 'SB';
+        authorInput.placeholder = 'SB';
+    }
+    // Clear any hardcoded default text to reveal the gray placeholder
+    if (authorInput.value === '누군가' || authorInput.value === '누구가' || authorInput.value === '내가' || authorInput.value === '私' || authorInput.value === 'SB' || authorInput.value === '익명') {
+        authorInput.value = '';
     }
 }
 
-if (langEnBtn && langKoBtn) {
+if (langEnBtn && langKoBtn && langJaBtn) {
     langEnBtn.addEventListener('click', () => {
         currentLang = 'en';
         document.body.setAttribute('data-lang', 'en');
         langEnBtn.classList.add('active');
         langKoBtn.classList.remove('active');
+        langJaBtn.classList.remove('active');
         updateLanguageUI();
     });
     
@@ -155,6 +196,16 @@ if (langEnBtn && langKoBtn) {
         document.body.setAttribute('data-lang', 'ko');
         langKoBtn.classList.add('active');
         langEnBtn.classList.remove('active');
+        langJaBtn.classList.remove('active');
+        updateLanguageUI();
+    });
+    
+    langJaBtn.addEventListener('click', () => {
+        currentLang = 'ja';
+        document.body.setAttribute('data-lang', 'ja');
+        langJaBtn.classList.add('active');
+        langEnBtn.classList.remove('active');
+        langKoBtn.classList.remove('active');
         updateLanguageUI();
     });
 }
@@ -189,7 +240,7 @@ function setupFirebaseListener() {
                 category: data.category,
                 recipient: data.recipient,
                 adult: data.adult || false,
-                author: data.author || (currentLang === 'ko' ? '누군가' : 'SB'),
+                author: data.author || (currentLang === 'ko' ? '내가' : (currentLang === 'ja' ? '私' : 'SB')),
                 reactions: {
                     heart: reactMap.heart || 0,
                     todac: reactMap.todac || 0,
@@ -260,11 +311,11 @@ function renderSecrets(searchQuery = currentSearchQuery) {
     if (isSearching) {
         const queryLower = searchQuery.toLowerCase();
         let matchAnonym = false;
-        if (queryLower === '누군가' || queryLower === 'sb' || queryLower === '익명') matchAnonym = true;
+        if (queryLower === '내가' || queryLower === '누구가' || queryLower === 'sb' || queryLower === '익명' || queryLower === '누군가' || queryLower === '私') matchAnonym = true;
 
         targetSecrets = targetSecrets.filter(s => {
             const auth = (s.author || '').toLowerCase();
-            return auth.includes(queryLower) || (matchAnonym && (!auth || auth === 'sb' || auth === '익명' || auth === '누군가' || auth === 'anonymous')); // Keep anonymous for legacy posts
+            return auth.includes(queryLower) || (matchAnonym && (!auth || auth === 'sb' || auth === '익명' || auth === '누군가' || auth === '누구가' || auth === '내가' || auth === '私' || auth === 'anonymous')); // Keep anonymous for legacy posts
         });
         
         secretsCarousel.classList.add('search-mode');
@@ -317,18 +368,23 @@ function renderSecrets(searchQuery = currentSearchQuery) {
         let catEn = secret.category || "";
         let repKo = repEn === "To someone" ? "누군가에게" : (repEn === "To you" ? "당신에게" : repEn);
         let catKo = catEn === "Personal" ? "개인" : (catEn === "Society" ? "사회" : (catEn === "Company" ? "회사" : catEn));
+
+        let repJa = repEn === "To someone" ? "誰かへ" : (repEn === "To you" ? "あなたへ" : repEn);
+        let catJa = catEn === "Personal" ? "個人" : (catEn === "Society" ? "社会" : (catEn === "Company" ? "会社" : catEn));
         
-        const safeAuthor = (secret.author || (currentLang === 'ko' ? '누군가' : 'SB')).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const safeAuthor = (secret.author || (currentLang === 'ko' ? '내가' : (currentLang === 'ja' ? '私' : 'SB'))).replace(/</g, "&lt;").replace(/>/g, "&gt;");
         
         let labelEn = `from ${safeAuthor} • ` + (repEn ? `${repEn} • ${catEn}` : catEn);
         let labelKo = `from ${safeAuthor} • ` + (repKo ? `${repKo} • ${catKo}` : catKo);
+        let labelJa = `from ${safeAuthor} • ` + (repJa ? `${repJa} • ${catJa}` : catJa);
         
         if (secret.adult) {
             labelEn += " (Adult only)";
             labelKo += " (성인 게시물)";
+            labelJa += " (大人モード)";
         }
         
-        const labelSafe = `<span class="en-only">${labelEn}</span><span class="ko-only">${labelKo}</span>`;
+        const labelSafe = `<span class="en-only">${labelEn}</span><span class="ko-only">${labelKo}</span><span class="ja-only">${labelJa}</span>`;
         
         let visualLength = 0;
         for (let i = 0; i < secret.text.length; i++) {
@@ -551,14 +607,16 @@ submitBtn.addEventListener('click', async () => {
     }
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = currentLang === 'ko' ? '<span class="ko-only">끄적이는 중...</span>' : '<span class="en-only">Scribbling...</span>';
+    if (currentLang === 'ko') submitBtn.innerHTML = '<span class="ko-only">끄적이는 중...</span>';
+    else if (currentLang === 'ja') submitBtn.innerHTML = '<span class="ja-only">書き込み中...</span>';
+    else submitBtn.innerHTML = '<span class="en-only">Scribbling...</span>';
 
     const newSecret = {
         text: text,
         recipient: recipientSelect.value,
         category: categorySelect.value,
         adult: adultOnlyCheckbox.checked,
-        author: authorInput.value.trim() || (currentLang === 'ko' ? '누군가' : 'SB'),
+        author: authorInput.value.trim() || (currentLang === 'ko' ? '내가' : (currentLang === 'ja' ? '私' : 'SB')),
         createdAt: serverTimestamp()
     };
     
@@ -590,7 +648,7 @@ submitBtn.addEventListener('click', async () => {
         alert("Sorry, your scribble couldn't be saved... Try later.");
     } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="en-only">Leave Scribble</span><span class="ko-only">끄적이기</span>';
+        submitBtn.innerHTML = '<span class="en-only">Leave Scribble</span><span class="ko-only">끄적이기</span><span class="ja-only">書き込む</span>';
     }
 });
 
@@ -609,7 +667,7 @@ authorSearch.addEventListener('input', (e) => {
 });
 searchBtn.addEventListener('click', () => {
     if (!authorSearch.value.trim()) {
-        authorSearch.value = currentLang === 'ko' ? '누군가' : 'SB';
+        authorSearch.value = currentLang === 'ko' ? '내가' : 'SB';
         renderSecrets(authorSearch.value);
     }
 });

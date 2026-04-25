@@ -6,22 +6,22 @@
     <title>Todac, Todac - 아무 이유 없이 끄적이는 공간</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Todac (토닥) - 아무 이유 없이 마음속 이야기를 끄적이고 가세요. Leave your random thoughts safely. 가볍게 흔적을 남기는 공간입니다.">
-    <meta name="keywords" content="익명 게시판, 끄적이기, 낙서장, 토닥토닥, 자유게시판, random thoughts, scribble, venting, todac">
+    <meta name="description" content="Todac (토닥) - 아무 이유 없이 마음속 이야기를 끄적이고 가세요. Leave your random thoughts safely. 理由もなく、心の中の思いをつぶやいてみてください。">
+    <meta name="keywords" content="익명 게시판, 끄적이기, 낙서장, 토닥토닥, 자유게시판, random thoughts, scribble, venting, todac, 匿名掲示板, つぶやき, 落書き帳">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://todac.me/">
     
     <!-- Open Graph / SNS Share -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://todac.me/">
-    <meta property="og:title" content="Todac, Todac - 아무 이유 없이 끄적이는 공간">
-    <meta property="og:description" content="가볍게 스쳐가는 생각들, 아무 이유 없이 끄적이고 가는 곳입니다. Just leave your random thoughts.">
+    <meta property="og:title" content="Todac, Todac - 아무 이유 없이 끄적이는 공간 | 理由もなくつぶやく場所">
+    <meta property="og:description" content="가볍게 스쳐가는 생각들, 아무 이유 없이 끄적이고 가는 곳입니다. Just leave your random thoughts. 気軽に思いをつぶやける場所です。">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://todac.me/">
-    <meta name="twitter:title" content="Todac, Todac - Scribble your thoughts">
-    <meta name="twitter:description" content="익명으로 남기는 나만의 끄적임.">
+    <meta name="twitter:title" content="Todac, Todac - Scribble your thoughts / つぶやき">
+    <meta name="twitter:description" content="익명으로 남기는 나만의 끄적임. 匿名で残す自分だけのつぶやき。">
     
     <!-- JSON-LD Structured Data for Google -->
     <script type="application/ld+json">
@@ -30,11 +30,11 @@
       "@type": "WebSite",
       "name": "Todac, Todac",
       "url": "https://todac.me/",
-      "description": "A place to scribble random thoughts. 자유롭게 끄적이는 공간.",
-      "inLanguage": ["ko", "en"]
+      "description": "A place to scribble random thoughts. 자유롭게 끄적이는 공간. 自由に文字をつぶやく空間。",
+      "inLanguage": ["ko", "en", "ja"]
     }
     </script>
-    <link rel="stylesheet" href="style.css?v=3.5">
+    <link rel="stylesheet" href="style.css?v=4.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Cinzel:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -56,6 +56,8 @@
                 <button id="lang-ko" class="lang-btn">KO</button>
                 <span class="lang-divider">|</span>
                 <button id="lang-en" class="lang-btn active">EN</button>
+                <span class="lang-divider">|</span>
+                <button id="lang-ja" class="lang-btn">JA</button>
             </div>
         </div>
         <div class="header-center">
@@ -63,6 +65,7 @@
             <p style="font-family: 'Inter', sans-serif; font-size: 1.05rem; color: #ffffff; margin-top: 8px; font-weight: 400; letter-spacing: 1.2px; text-shadow: 0 0 10px rgba(255, 143, 143, 0.3), 0 0 20px rgba(122, 154, 255, 0.3); font-style: italic;">
                 <span class="en-only">Just leave a scribble for no reason at all.</span>
                 <span class="ko-only">그냥 아무 이유 없이 끄적이고 가세요.</span>
+                <span class="ja-only">ただ理由もなく、つぶやいていってください。</span>
             </p>
         </div>
         <div class="counter-wrapper">
@@ -104,20 +107,21 @@
         <div class="input-panel glass">
             <textarea id="secret-input" placeholder="Quietly write your secret here..." rows="5"></textarea>
             <div id="unlock-hint" style="text-align: left; color: rgba(148, 163, 184, 0.4); margin: 6px 0 16px 0; padding-left: 2px;">
-                <span class="en-only" style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-style: italic; font-weight: 300; opacity: 0.9;">Leave a quick scribble to unlock 3 more notes.</span>
-                <span class="ko-only" style="font-family: inherit; font-size: 0.8rem; font-style: italic; font-weight: 300; opacity: 0.8; margin-top: 2px; display: inline-block;">끄적임 하나를 남기면 다른 사람의 글 3개를 볼 수 있습니다.</span>
+                <span class="en-only" style="font-family: 'Inter', sans-serif; font-size: min(3.5vw, 0.85rem); font-style: italic; font-weight: 300; opacity: 0.9; white-space: nowrap; letter-spacing: -0.2px;">Leave a quick scribble to unlock 3 more notes.</span>
+                <span class="ko-only" style="font-family: inherit; font-size: min(3.5vw, 0.8rem); font-style: italic; font-weight: 300; opacity: 0.8; margin-top: 2px; display: inline-block; white-space: nowrap; letter-spacing: -0.5px;">끄적임 하나를 남기면 다른 사람의 글 3개를 볼 수 있습니다.</span>
+                <span class="ja-only" style="font-family: inherit; font-size: min(3.5vw, 0.8rem); font-style: italic; font-weight: 300; opacity: 0.8; margin-top: 2px; display: inline-block; white-space: nowrap; letter-spacing: -0.5px;">一つのつぶやきを残すと、他の人のメモを3つ見ることができます。</span>
             </div>
             <div class="controls-row">
                 <div class="options-group">
+                    <div class="custom-select-wrapper">
+                        <input type="text" id="author-input" class="dropdown author-input" maxlength="7">
+                    </div>
                     <div class="custom-select-wrapper">
                         <select id="recipient-select" class="dropdown">
                             <option value="To someone">To someone</option>
                             <option value="To you">To you</option>
                         </select>
                         <i class="fas fa-caret-down select-icon"></i>
-                    </div>
-                    <div class="custom-select-wrapper">
-                        <input type="text" id="author-input" class="dropdown author-input" maxlength="7">
                     </div>
                     <div class="custom-select-wrapper">
                         <select id="category-select" class="dropdown">
@@ -137,6 +141,7 @@
                 <button id="submit-btn" class="submit-btn">
                     <span class="en-only">Leave Scribble</span>
                     <span class="ko-only">끄적이기</span>
+                    <span class="ja-only">書き込む</span>
                 </button>
             </div>
         </div>
@@ -145,6 +150,7 @@
     <div class="footer-copyright">
         <p class="en-only">Todac: A Korean onomatopoeia for a gentle pat on the back.</p>
         <p class="ko-only">Todac: 등을 가볍게 토닥이는 소리를 나타내는 의성어입니다.</p>
+        <p class="ja-only">Todac：背中を軽くポンポンと叩く音を表す韓国語の擬音語です。</p>
         <p>Copyright 2026 todac.me, v0.6</p>
     </div>
 
@@ -209,6 +215,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=3.5"></script>
+    <script type="module" src="script.js?v=4.1"></script>
 </body>
 </html>
