@@ -101,15 +101,15 @@ if (userLang.toLowerCase().includes('ko')) {
 }
 const langEnBtn = document.getElementById('lang-en');
 const langKoBtn = document.getElementById('lang-ko');
-const langJaBtn = document.getElementById('lang-ja');
+const langJpBtn = document.getElementById('lang-jp');
 
 // Sync button states on load
-if (langEnBtn && langKoBtn && langJaBtn) {
+if (langEnBtn && langKoBtn && langJpBtn) {
     langEnBtn.classList.remove('active');
     langKoBtn.classList.remove('active');
-    langJaBtn.classList.remove('active');
+    langJpBtn.classList.remove('active');
     if (currentLang === 'ko') langKoBtn.classList.add('active');
-    else if (currentLang === 'ja') langJaBtn.classList.add('active');
+    else if (currentLang === 'ja') langJpBtn.classList.add('active');
     else langEnBtn.classList.add('active');
 }
 
@@ -160,19 +160,17 @@ function updateLanguageUI() {
     }
     
     // Placeholder
-    const prompts = placeholderPrompts[currentLang];
-    const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
     if (currentLang === 'ko') {
-        secretInput.placeholder = `아무 얘기나 끄적여보세요...\n${randomPrompt}`;
-        authorSearch.placeholder = '글쓴이로 검색하기';
+        secretInput.placeholder = `아무 얘기나 끄적여보세요...`;
+        authorSearch.placeholder = '검색하기';
         authorInput.placeholder = '내가';
     } else if (currentLang === 'ja') {
-        secretInput.placeholder = `何でも気軽に書いてみてください...\n${randomPrompt}`;
-        authorSearch.placeholder = '作成者で検索';
+        secretInput.placeholder = `何でも気軽に書いてみてください...`;
+        authorSearch.placeholder = '検索';
         authorInput.placeholder = '私';
     } else {
-        secretInput.placeholder = `Jot down whatever is on your mind...\n${randomPrompt}`;
-        authorSearch.placeholder = 'Search by author';
+        secretInput.placeholder = `Jot down whatever is on your mind...`;
+        authorSearch.placeholder = 'Search';
         authorInput.placeholder = 'SB';
     }
     // Clear any hardcoded default text to reveal the gray placeholder
@@ -181,13 +179,13 @@ function updateLanguageUI() {
     }
 }
 
-if (langEnBtn && langKoBtn && langJaBtn) {
+if (langEnBtn && langKoBtn && langJpBtn) {
     langEnBtn.addEventListener('click', () => {
         currentLang = 'en';
         document.body.setAttribute('data-lang', 'en');
         langEnBtn.classList.add('active');
         langKoBtn.classList.remove('active');
-        langJaBtn.classList.remove('active');
+        langJpBtn.classList.remove('active');
         updateLanguageUI();
     });
     
@@ -196,14 +194,14 @@ if (langEnBtn && langKoBtn && langJaBtn) {
         document.body.setAttribute('data-lang', 'ko');
         langKoBtn.classList.add('active');
         langEnBtn.classList.remove('active');
-        langJaBtn.classList.remove('active');
+        langJpBtn.classList.remove('active');
         updateLanguageUI();
     });
     
-    langJaBtn.addEventListener('click', () => {
+    langJpBtn.addEventListener('click', () => {
         currentLang = 'ja';
         document.body.setAttribute('data-lang', 'ja');
-        langJaBtn.classList.add('active');
+        langJpBtn.classList.add('active');
         langEnBtn.classList.remove('active');
         langKoBtn.classList.remove('active');
         updateLanguageUI();
@@ -241,6 +239,7 @@ function setupFirebaseListener() {
                 recipient: data.recipient,
                 adult: data.adult || false,
                 author: data.author || (currentLang === 'ko' ? '내가' : (currentLang === 'ja' ? '私' : 'SB')),
+                tag: data.tag || '',
                 reactions: {
                     heart: reactMap.heart || 0,
                     todac: reactMap.todac || 0,
@@ -268,6 +267,8 @@ function setupFirebaseListener() {
         // Combine DB secrets and dummy secrets to guarantee a good pool
         allSecrets = [...fetchedSecrets, ...dummySecrets];
         
+        updateDynamicSEO(fetchedSecrets);
+        
         // Exact real-time counter! Base + number of actual secrets in DB
         totalDisplayedCounter = basePostsRegistered + snapshot.size;
         updateCounter();
@@ -277,6 +278,54 @@ function setupFirebaseListener() {
             renderSecrets();
         }
     });
+}
+
+function updateDynamicSEO(secrets) {
+    const allTags = new Set();
+    const seoItems = [];
+    
+    secrets.forEach((s, idx) => {
+        if(s.tag) {
+            s.tag.split(' ').forEach(t => allTags.add(t));
+        }
+        if (idx < 50 && s.adult !== true) { // Limit to 50 for schema and skip adult
+            seoItems.push({
+                "@type": "SocialMediaPosting",
+                "text": s.text.substring(0, 150),
+                "author": {
+                    "@type": "Person",
+                    "name": s.author || "Anonymous"
+                },
+                "keywords": s.tag ? s.tag.split(' ').join(',') : ""
+            });
+        }
+    });
+
+    const metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (metaKeywords && allTags.size > 0) {
+        let currentKeywords = "익명 게시판, 끄적이기, 낙서장, 토닥토닥, 자유게시판, random thoughts, scribble, venting, todac, 匿名掲示板, つぶやき, 落書き帳";
+        let tagsArr = Array.from(allTags).map(t => `#${t}`);
+        metaKeywords.setAttribute("content", currentKeywords + ", " + tagsArr.join(", "));
+    }
+
+    let scriptTag = document.getElementById('dynamic-json-ld');
+    if (!scriptTag) {
+        scriptTag = document.createElement('script');
+        scriptTag.id = 'dynamic-json-ld';
+        scriptTag.type = 'application/ld+json';
+        document.head.appendChild(scriptTag);
+    }
+    
+    const itemList = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "itemListElement": seoItems.map((item, index) => ({
+            "@type": "ListItem",
+            "position": index + 1,
+            "item": item
+        }))
+    };
+    scriptTag.textContent = JSON.stringify(itemList);
 }
 
 function updateCounter() {
@@ -315,7 +364,8 @@ function renderSecrets(searchQuery = currentSearchQuery) {
 
         targetSecrets = targetSecrets.filter(s => {
             const auth = (s.author || '').toLowerCase();
-            return auth.includes(queryLower) || (matchAnonym && (!auth || auth === 'sb' || auth === '익명' || auth === '누군가' || auth === '누구가' || auth === '내가' || auth === '私' || auth === 'anonymous')); // Keep anonymous for legacy posts
+            const tags = (s.tag || '').toLowerCase();
+            return auth.includes(queryLower) || tags.includes(queryLower) || (matchAnonym && (!auth || auth === 'sb' || auth === '익명' || auth === '누군가' || auth === '누구가' || auth === '내가' || auth === '私' || auth === 'anonymous')); // Keep anonymous for legacy posts
         });
         
         secretsCarousel.classList.add('search-mode');
@@ -379,9 +429,9 @@ function renderSecrets(searchQuery = currentSearchQuery) {
         let labelJa = `from ${safeAuthor} • ` + (repJa ? `${repJa} • ${catJa}` : catJa);
         
         if (secret.adult) {
-            labelEn += " (Adult only)";
-            labelKo += " (성인 게시물)";
-            labelJa += " (大人モード)";
+            labelEn += " (Hidden)";
+            labelKo += " (비노출)";
+            labelJa += " (非公開)";
         }
         
         const labelSafe = `<span class="en-only">${labelEn}</span><span class="ko-only">${labelKo}</span><span class="ja-only">${labelJa}</span>`;
@@ -565,7 +615,7 @@ submitBtn.addEventListener('click', async () => {
     const isAdultContent = adultKeywords.some(keyword => text.toLowerCase().includes(keyword));
     
     if (isAdultContent && !adultOnlyCheckbox.checked) {
-        alert("성적인 표현이나 관련 단어가 포함된 글은 'Adult only'를 체크해야 등록할 수 있습니다.\n(Posts containing adult keywords must have 'Adult only' checked.)");
+        alert("운영 정책에 따라 특정 단어가 포함된 글은 '비노출(Hidden)'을 체크해야 등록할 수 있습니다.\n(Posts containing certain keywords must have 'Hidden' checked.)");
         return;
     }
 
@@ -611,12 +661,16 @@ submitBtn.addEventListener('click', async () => {
     else if (currentLang === 'ja') submitBtn.innerHTML = '<span class="ja-only">書き込み中...</span>';
     else submitBtn.innerHTML = '<span class="en-only">Scribbling...</span>';
 
+    const tagsMatch = text.match(/#[^\s#<>\n]+/g);
+    const extractedTags = tagsMatch ? tagsMatch.map(t => t.replace('#', '')).join(' ') : '';
+
     const newSecret = {
         text: text,
         recipient: recipientSelect.value,
         category: categorySelect.value,
         adult: adultOnlyCheckbox.checked,
         author: authorInput.value.trim() || (currentLang === 'ko' ? '내가' : (currentLang === 'ja' ? '私' : 'SB')),
+        tag: extractedTags,
         createdAt: serverTimestamp()
     };
     

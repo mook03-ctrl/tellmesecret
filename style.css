@@ -918,8 +918,8 @@ body {
     border: none;
     color: var(--text-dim);
     cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
     font-weight: 600;
     transition: all 0.3s;
 }
@@ -954,7 +954,7 @@ body[data-lang="ja"] span.en-only, body[data-lang="ja"] span.ko-only { display: 
 .author-input {
     width: 80px;
     padding: 0.5rem 0.6rem;
-    text-align: center;
+    text-align: left;
 }
 .author-input::placeholder {
     color: rgba(148, 163, 184, 0.4);
@@ -1023,9 +1023,9 @@ body[data-lang="ja"] span.en-only, body[data-lang="ja"] span.ko-only { display: 
     .top-right-controls {
         top: 1rem;
         right: 1rem;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 8px;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
     }
     
     .counter-wrapper {
