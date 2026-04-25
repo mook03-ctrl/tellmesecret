@@ -34,7 +34,7 @@
       "inLanguage": ["ko", "en", "ja"]
     }
     </script>
-    <link rel="stylesheet" href="style.css?v=4.10">
+    <link rel="stylesheet" href="style.css?v=4.12">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Cinzel:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -107,13 +107,13 @@
     <footer class="footer-input">
         <div class="input-panel glass">
             <textarea id="secret-input" placeholder="Quietly write your secret here..." rows="5"></textarea>
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin: 6px 0 16px 0;">
-                <div id="unlock-hint" style="text-align: left; color: rgba(148, 163, 184, 0.4); padding-left: 2px;">
+            <div style="display: flex; flex-direction: column; align-items: flex-start; margin: 6px 0 16px 0; padding-left: 2px; gap: 4px;">
+                <div id="unlock-hint" style="text-align: left; color: rgba(148, 163, 184, 0.4);">
                     <span class="en-only" style="font-family: 'Inter', sans-serif; font-size: min(3.5vw, 0.85rem); font-style: italic; font-weight: 300; opacity: 0.9; white-space: nowrap; letter-spacing: -0.2px;">Leave a quick scribble to unlock more notes.</span>
-                    <span class="ko-only" style="font-family: inherit; font-size: min(3.5vw, 0.8rem); font-style: italic; font-weight: 300; opacity: 0.8; margin-top: 2px; display: inline-block; white-space: nowrap; letter-spacing: -0.5px;">끄적임 하나를 남기면 다른 글을 더 볼 수 있습니다.</span>
-                    <span class="ja-only" style="font-family: inherit; font-size: min(3.5vw, 0.8rem); font-style: italic; font-weight: 300; opacity: 0.8; margin-top: 2px; display: inline-block; white-space: nowrap; letter-spacing: -0.5px;">一つのつぶやきを残すと、他のメモをもっと見ることができます。</span>
+                    <span class="ko-only" style="font-family: inherit; font-size: min(3.5vw, 0.8rem); font-style: italic; font-weight: 300; opacity: 0.8; display: inline-block; white-space: nowrap; letter-spacing: -0.5px;">끄적임 하나를 남기면 다른 글을 더 볼 수 있습니다.</span>
+                    <span class="ja-only" style="font-family: inherit; font-size: min(3.5vw, 0.8rem); font-style: italic; font-weight: 300; opacity: 0.8; display: inline-block; white-space: nowrap; letter-spacing: -0.5px;">一つのつぶやきを残すと、他のメモをもっと見ることができます。</span>
                 </div>
-                <div style="text-align: right; color: rgba(148, 163, 184, 0.25); font-size: 0.75rem; padding-right: 2px; white-space: nowrap; margin-top: 2px; font-weight: 300; letter-spacing: 0.5px;">
+                <div style="text-align: left; color: rgba(148, 163, 184, 0.3); font-size: 0.75rem; font-weight: 300; letter-spacing: 0.5px;">
                     #Tag #Tag ...
                 </div>
             </div>
@@ -222,6 +222,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js?v=4.10"></script>
+    <script type="module" src="script.js?v=4.12"></script>
 </body>
 </html>

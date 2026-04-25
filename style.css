@@ -1017,15 +1017,23 @@ body[data-lang="ja"] span.en-only, body[data-lang="ja"] span.ko-only { display: 
     .header {
         flex-direction: column;
         gap: 1.5rem;
-        padding-top: 2rem;
+        padding-top: 5rem;
     }
     
     .top-right-controls {
-        top: 1rem;
-        right: 1rem;
-        flex-direction: row;
-        align-items: center;
-        gap: 12px;
+        display: contents;
+    }
+    
+    .search-wrapper {
+        position: absolute;
+        top: 1.5rem;
+        left: calc(50% - 145px);
+    }
+    
+    .language-selector {
+        position: absolute;
+        top: 1.8rem;
+        right: calc(50% - 145px);
     }
     
     .counter-wrapper {
